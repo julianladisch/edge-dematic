@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: edge-dematic
+  jackson:
+    default-property-inclusion: non_null
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/changelog-master.xml
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+  properties:
+    physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+    implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+    hibernate:
+      format_sql: true
+  flyway:
+    enabled: false
+
+feign:
+  client:
+    config:
+      default:
+        loggerLevel: full
+
+logging:
+  level:
+    org:
+      springframework:
+        cache: OFF
+
+server.port: 8081
+folio.tenant.validation.enabled: false

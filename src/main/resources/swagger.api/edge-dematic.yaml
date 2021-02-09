@@ -1,0 +1,56 @@
+openapi: 3.0.0
+info:
+  title: Remote storages API
+  version: v1
+servers:
+  - url: /asrService/asr/
+paths:
+  /lookupNewAsrItems/{storageId}:
+    get:
+      responses:
+        '200':
+          description: ""
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/asrItems"
+      description: Get a list of remote storage configurations
+      operationId: getConfigurations
+      parameters:
+        - name: storageId
+          in: path
+          required: true
+          schema:
+            type: string
+components:
+  schemas:
+    asrItems:
+      type: object
+      properties:
+        asrItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/asrItem"
+          xml:
+            name: asrItem
+            wrapped: true
+      xml:
+        name: asrItems
+        wrapped: true
+
+    asrItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          xml:
+            attribute: true
+        author:
+          type: string
+        title:
+          type: string
+        itemNumber:
+          type: string
+        callNumber:
+          type: string
+

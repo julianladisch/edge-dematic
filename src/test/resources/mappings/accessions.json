@@ -1,0 +1,38 @@
+{
+  "mappings" : [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/remote-storage/accessions?query=storageId=de17bad7-2a30-4f1c-bee5-f653ded15629",
+        "headers" : {
+          "x-okapi-token": {
+            "equalTo": "AAA-BBB-CCC"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": "{\"totalRecords\":1,\"accessions\":[{\"id\":\"1a06829d-490d-4009-9f1a-51a60c4afa0c\",\"itemBarcode\":\"697685458679\",\"createdDateTime\":\"2021-02-03T06:31:35.550\",\"remoteStorageId\":\"de17bad7-2a30-4f1c-bee5-f653ded15629\",\"callNumber\":\"some-callnumber\",\"instanceTitle\":\"Nod\",\"instanceAuthor\":\"Barnes, Adrian\"}]}",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }, {
+      "request": {
+        "method": "PUT",
+        "url": "/remote-storage/accessions/barcode/69768545867",
+        "headers" : {
+          "x-okapi-token": {
+            "equalTo": "AAA-BBB-CCC"
+          }
+        }
+      },
+      "response": {
+        "status": 204,
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}
