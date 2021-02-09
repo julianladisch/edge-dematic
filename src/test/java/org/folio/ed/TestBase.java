@@ -1,4 +1,4 @@
-package org.folio.ed.controller;
+package org.folio.ed;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
@@ -6,7 +6,6 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.ed.controller.TenantController;
 import org.folio.ed.domain.AsyncFolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
-import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.scope.FolioExecutionScopeExecutionContextManager;
 import org.folio.tenant.domain.dto.Parameter;
 import org.folio.tenant.domain.dto.TenantAttributes;
@@ -20,7 +19,6 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;

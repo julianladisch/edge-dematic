@@ -1,7 +1,16 @@
 {
   "id": "@artifactId@-@version@",
   "name": "",
-  "requires": [],
+  "requires": [
+    {
+      "id": "remote-storage-configurations",
+      "version": "1.0"
+    },
+    {
+      "id": "remote-storage-accessions",
+      "version": "1.0"
+    }
+  ],
   "provides": [
     {
       "id": "_tenant",

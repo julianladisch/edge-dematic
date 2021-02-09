@@ -3,7 +3,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/remote-storage/accessions?query=storageId=de17bad7-2a30-4f1c-bee5-f653ded15629",
+        "url": "/remote-storage/accessions?query=storageId==de17bad7-2a30-4f1c-bee5-f653ded15629",
         "headers" : {
           "x-okapi-token": {
             "equalTo": "AAA-BBB-CCC"
@@ -20,7 +20,7 @@
     }, {
       "request": {
         "method": "PUT",
-        "url": "/remote-storage/accessions/barcode/69768545867",
+        "url": "/remote-storage/accessions/barcode/697685458679",
         "headers" : {
           "x-okapi-token": {
             "equalTo": "AAA-BBB-CCC"

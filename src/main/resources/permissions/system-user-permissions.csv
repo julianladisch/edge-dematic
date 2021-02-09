@@ -1,1 +1,3 @@
-inventory.instances.collection.get
+remote-storage.configurations.collection.get
+remote-storage.accessions.collection.get
+remote-storage.accessions.item.put

@@ -1,26 +1,20 @@
 package org.folio.ed.controller;
 
-import static java.util.Objects.nonNull;
-
-
 import javax.validation.Valid;
 import liquibase.exception.LiquibaseException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
-import org.folio.ed.domain.AsyncFolioExecutionContext;
 import org.folio.ed.domain.TenantHolder;
 import org.folio.ed.service.SecurityManagerService;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.liquibase.FolioSpringLiquibase;
-import org.folio.spring.scope.FolioExecutionScopeExecutionContextManager;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.folio.tenant.rest.resource.TenantApi;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 
 @Log4j2
 @RestController("folioTenantController")

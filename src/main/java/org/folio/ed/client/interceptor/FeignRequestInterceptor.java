@@ -7,11 +7,9 @@ import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
-import org.folio.ed.domain.AsyncFolioExecutionContext;
 import org.folio.ed.domain.TenantHolder;
 import org.folio.ed.service.SecurityManagerService;
 import org.folio.spring.FolioExecutionContext;
-import org.folio.spring.scope.FolioExecutionScopeExecutionContextManager;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -27,11 +25,6 @@ public class FeignRequestInterceptor implements RequestInterceptor {
   @SneakyThrows
   @Override
   public void apply(RequestTemplate template) {
-
-    var systemUserParameters = securityManagerService.getSystemUserParameters(tenantHolder.getTenantId());
-    FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(
-      new AsyncFolioExecutionContext(systemUserParameters, null));
-
     template.header(TOKEN, Collections.singletonList(folioExecutionContext.getToken()));
     template.header(TENANT, Collections.singletonList(folioExecutionContext.getTenantId()));
   }
