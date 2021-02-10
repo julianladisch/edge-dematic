@@ -32,7 +32,3 @@ logging:
 
 server.port: 8081
 folio.tenant.validation.enabled: false
-
-# mock server settings
-mock.server.primary.port: 10001
-mock.server.status.port: 10002

@@ -3,6 +3,8 @@ spring:
     name: edge-dematic
   jackson:
     default-property-inclusion: non_null
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST:localhost}:${KAFKA_PORT:9092}
   datasource:
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
@@ -36,9 +38,3 @@ logging:
 
 server.port: 8081
 folio.tenant.validation.enabled: false
-
-# heartbeat timeframe for the primary channel (millis)
-primary.channel.heartbeat.timeframe: 30000
-
-# configurations update timeframe (millis)
-configurations.update.timeframe: 3600000

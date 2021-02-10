@@ -1,17 +1,40 @@
 {
   "id": "@artifactId@-@version@",
-  "name": "",
-  "requires": [
-    {
-      "id": "remote-storage-configurations",
-      "version": "1.0"
-    },
-    {
-      "id": "remote-storage-accessions",
-      "version": "1.0"
-    }
-  ],
+  "name": "Edge Dematic API",
+  "requires": [],
   "provides": [
+    {
+      "id": "asrService",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/asrService/asr/lookupNewAsrItems/{remoteStorageConfigurationId}",
+          "permissionsRequired" : [],
+          "modulePermissions": [
+            "remote-storage.accessions.collection.get",
+            "remote-storage.accessions.item.put"
+          ]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/asrService/asr/lookupAsrRequests/{remoteStorageConfigurationId}",
+          "permissionsRequired" : [],
+          "modulePermissions": [
+            "remote-storage.retrievals.collection.get",
+            "remote-storage.retrievals.item.put"
+          ]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/asrService/asr/updateASRItemStatusAvailable/{remoteStorageConfigurationId}",
+          "permissionsRequired" : [],
+          "modulePermissions": [
+            "remote-storage.check-in.item.post"
+          ]
+        }
+      ]
+    },
     {
       "id": "_tenant",
       "version": "1.2",

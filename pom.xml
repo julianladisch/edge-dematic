@@ -33,9 +33,10 @@
     <spring-kafka.version>2.6.3</spring-kafka.version>
     <wiremock.version>2.27.2</wiremock.version>
     <awaitility.version>3.0.0</awaitility.version>
+    <spring-kafka-test.version>2.6.4</spring-kafka-test.version>
     <embedded.db.version>1.6.2</embedded.db.version>
-    <awaitility.version>4.0.3</awaitility.version>
-    <sonar.exclusions>src/main/java/org/folio/ed/domain/**, src/main/java/org/folio/ed/client/AuthnClient.java</sonar.exclusions>
+    <sonar.exclusions>src/main/java/org/folio/rs/domain/**, src/main/java/org/folio/rs/client/AuthnClient.java, src/main/java/org/folio/rs/config/properties/** </sonar.exclusions>
+    <edge-dematic.yaml.file>${project.basedir}/src/main/resources/swagger.api/edge-dematic.yaml</edge-dematic.yaml.file>
   </properties>
 
   <dependencies>
@@ -68,19 +69,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-cache</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-integration</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.integration</groupId>
-      <artifactId>spring-integration-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.integration</groupId>
-      <artifactId>spring-integration-ip</artifactId>
     </dependency>
 
     <dependency>
@@ -165,27 +153,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.springframework.integration</groupId>
-      <artifactId>spring-integration-event</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.integration</groupId>
-      <artifactId>spring-integration-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>com.github.tomakehurst</groupId>
       <artifactId>wiremock-standalone</artifactId>
       <version>${wiremock.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.awaitility</groupId>
-      <artifactId>awaitility</artifactId>
-      <version>${awaitility.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -288,6 +258,41 @@
       </plugin>
 
       <plugin>
+        <groupId>org.openapitools</groupId>
+        <artifactId>openapi-generator-maven-plugin</artifactId>
+        <version>${openapi-generator.version}</version>
+        <executions>
+          <execution>
+            <id>remoteStorage</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${edge-dematic.yaml.file}</inputSpec>
+              <output>${project.build.directory}/generated-sources</output>
+              <generatorName>spring</generatorName>
+              <modelPackage>${project.groupId}.rs.domain.dto</modelPackage>
+              <apiPackage>${project.groupId}.rs.rest.resource</apiPackage>
+              <generateApis>true</generateApis>
+              <generateApiTests>true</generateApiTests>
+              <generateApiDocumentation>true</generateApiDocumentation>
+              <generateModels>true</generateModels>
+              <generateModelTests>false</generateModelTests>
+              <generateSupportingFiles>true</generateSupportingFiles>
+              <supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
+              <generateModelDocumentation>true</generateModelDocumentation>
+              <configOptions>
+                <java8>true</java8>
+                <dateLibrary>java</dateLibrary>
+                <interfaceOnly>true</interfaceOnly>
+                <withXml>true</withXml>
+              </configOptions>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
@@ -315,12 +320,10 @@
         <version>2.22.2</version>
         <configuration>
           <excludes>
-            <exclude>org/folio/ed/integration/**Test.class</exclude>
-            <exclude>org/folio/ed/service/**Test.class</exclude>
-            <exclude>org/folio/ed/util/**Test.class</exclude>
+            <exclude>org/folio/rs/Controller/**Test.class</exclude>
           </excludes>
           <includes>
-            <include>org/folio/ed/TestSuite.class</include>
+            <include>org/folio/rs/TestSuite.class</include>
           </includes>
           <useSystemClassLoader>false</useSystemClassLoader>
         </configuration>

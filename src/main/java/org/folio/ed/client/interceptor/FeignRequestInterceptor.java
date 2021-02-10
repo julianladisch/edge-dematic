@@ -15,6 +15,7 @@ import java.util.Collections;
 @Component
 @AllArgsConstructor
 public class FeignRequestInterceptor implements RequestInterceptor {
+
   private final FolioExecutionContext folioExecutionContext;
 
   @SneakyThrows
