@@ -35,7 +35,7 @@
     <awaitility.version>3.0.0</awaitility.version>
     <embedded.db.version>1.6.2</embedded.db.version>
     <awaitility.version>4.0.3</awaitility.version>
-    <sonar.exclusions>src/main/java/org/folio/rs/domain/**, src/main/java/org/folio/rs/client/AuthnClient.java</sonar.exclusions>
+    <sonar.exclusions>src/main/java/org/folio/ed/domain/**, src/main/java/org/folio/ed/client/AuthnClient.java</sonar.exclusions>
   </properties>
 
   <dependencies>
