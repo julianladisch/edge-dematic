@@ -1,4 +1,4 @@
-package org.folio.ed.config;
+package org.folio.ed.support;
 
 import feign.Client;
 import feign.Logger;

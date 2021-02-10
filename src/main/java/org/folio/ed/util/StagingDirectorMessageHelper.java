@@ -18,10 +18,6 @@ public final class StagingDirectorMessageHelper {
   private static final int CALL_NUM_SIZE = 50;
   private static final int ERROR_REASON_SIZE = 3;
   private static final int MSG_TYPE_SIZE = 2;
-  private static final int PATRON_BARCODE_SIZE = 20;
-  private static final int PATRON_NAME_SIZE = 40;
-  private static final int PICKUP_LOCATION_SIZE = 6;
-  private static final int PRIORITY_SIZE = 1;
   private static final int SKU_SIZE = 14;
   private static final int TIMESTAMP_SIZE = 14;
   private static final int TITLE_SIZE = 35;

@@ -39,7 +39,7 @@ public class RemoteStorageService {
     var systemUserParameters = securityManagerService.getSystemUserParameters(tenantHolder.getTenantId());
     FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(
       new AsyncFolioExecutionContext(systemUserParameters, null));
-    return remoteStorageClient.getStorageConfigurations().getResult().stream()
+    return remoteStorageClient.getStorageConfigurations().getConfigurations().stream()
       .filter(configuration -> STAGING_DIRECTOR_NAME.equals(configuration.getProviderName()))
       .collect(Collectors.toList());
   }

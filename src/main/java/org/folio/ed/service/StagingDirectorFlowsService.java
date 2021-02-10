@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.folio.ed.domain.AsyncFolioExecutionContext;
 import org.folio.ed.domain.TenantHolder;
 import org.folio.ed.domain.dto.Configuration;
+import org.folio.ed.handler.ResponseHandler;
+import org.folio.ed.handler.StatusMessageHandler;
 import org.folio.ed.util.StagingDirectorMessageHelper;
 import org.folio.spring.scope.FolioExecutionScopeExecutionContextManager;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,13 +30,14 @@ public class StagingDirectorFlowsService {
 
   private final IntegrationFlowContext integrationFlowContext;
   private final RemoteStorageService remoteStorageService;
-  private final MessageService messageService;
   private final SecurityManagerService securityManagerService;
   private final TenantHolder tenantHolder;
+  private final StatusMessageHandler statusMessageHandler;
+  private final ResponseHandler responseHandler;
 
   @Scheduled(fixedDelayString = "${configurations.update.timeframe}")
   public void updateIntegrationFlows() {
-    stopAndRemoveAllFlows();
+    removeExistingFlows();
     var systemUserParameters = securityManagerService.getSystemUserParameters(tenantHolder.getTenantId());
     FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(
       new AsyncFolioExecutionContext(systemUserParameters, null));
@@ -48,7 +51,7 @@ public class StagingDirectorFlowsService {
     registerStatusChannelFlow(configuration);
   }
 
-  public void stopAndRemoveAllFlows() {
+  public void removeExistingFlows() {
     integrationFlowContext.getRegistry().keySet().forEach(key -> {
       integrationFlowContext.getRegistrationById(key).stop();
       integrationFlowContext.remove(key);
@@ -60,7 +63,7 @@ public class StagingDirectorFlowsService {
       .registration(IntegrationFlows
         .from(MessageChannels.publishSubscribe(configuration.getName()))
         .handle(Tcp.outboundGateway(Tcp.netClient(resolveAddress(configuration.getUrl()), resolvePort(configuration.getUrl()))))
-        .handle(String.class, messageService::handleResponse)
+        .handle(String.class, responseHandler)
         .get())
       .register();
   }
@@ -94,7 +97,7 @@ public class StagingDirectorFlowsService {
     return integrationFlowContext
       .registration(IntegrationFlows
         .from(Tcp.inboundGateway(statusChannelFactory).clientMode(true))
-        .handle(String.class, messageService::handleStatusMessage)
+        .handle(String.class, statusMessageHandler)
         .get())
       .register();
   }

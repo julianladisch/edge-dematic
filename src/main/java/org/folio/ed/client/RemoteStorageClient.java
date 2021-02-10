@@ -2,6 +2,7 @@ package org.folio.ed.client;
 
 import org.folio.ed.domain.dto.AccessionQueueRecord;
 import org.folio.ed.domain.dto.Configuration;
+import org.folio.ed.domain.dto.Configurations;
 import org.folio.ed.domain.dto.ResultList;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,5 +20,5 @@ public interface RemoteStorageClient extends QueryableClient<AccessionQueueRecor
   String setAccessionedByBarcode(@PathVariable("barcode") String barcode);
 
   @GetMapping("/configurations")
-  ResultList<Configuration> getStorageConfigurations();
+  Configurations getStorageConfigurations();
 }

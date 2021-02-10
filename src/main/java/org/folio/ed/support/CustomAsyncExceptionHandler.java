@@ -1,12 +1,10 @@
-package org.folio.ed.config;
+package org.folio.ed.support;
 
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 @Log4j2
 public class CustomAsyncExceptionHandler

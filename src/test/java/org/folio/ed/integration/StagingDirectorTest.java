@@ -1,20 +1,22 @@
 package org.folio.ed.integration;
 
 import static org.awaitility.Awaitility.await;
-import static org.folio.ed.config.ServerMessageService.HEARTBEAT_MESSAGE;
-import static org.folio.ed.config.ServerMessageService.TRANSACTION_RESPONSE_MESSAGE;
-import static org.mockito.ArgumentMatchers.anyMap;
+import static org.folio.ed.support.ServerMessageHandler.TRANSACTION_RESPONSE_MESSAGE;
+import static org.folio.ed.support.ServerMessageHelper.HEARTBEAT_MESSAGE;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import org.folio.ed.TestBase;
+import org.folio.ed.service.StagingDirectorFlowsService;
+import org.folio.ed.support.ServerMessageHandler;
 import org.folio.ed.domain.dto.Configuration;
 import org.folio.ed.config.MockServerConfig;
-import org.folio.ed.config.ServerMessageService;
-import org.folio.ed.service.MessageService;
-import org.folio.ed.service.StagingDirectorFlowsService;
+import org.folio.ed.support.ServerMessageHelper;
+import org.folio.ed.handler.ResponseHandler;
+import org.folio.ed.handler.StatusMessageHandler;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -31,11 +33,17 @@ public class StagingDirectorTest extends TestBase {
   @Autowired
   private IntegrationFlowContext integrationFlowContext;
 
-  @SpyBean
-  private MessageService messageService;
+  @Autowired
+  private ServerMessageHelper serverMessageHelper;
 
   @SpyBean
-  private ServerMessageService serverMessageService;
+  private StatusMessageHandler statusMessageHandler;
+
+  @SpyBean
+  private ResponseHandler responseHandler;
+
+  @SpyBean
+  private ServerMessageHandler serverMessageHandler;
 
   @Test
   void shouldReceiveServerResponseOnHeartbeatMessage() {
@@ -45,10 +53,10 @@ public class StagingDirectorTest extends TestBase {
       flowsService.registerPrimaryChannelHeartbeatPoller(buildConfiguration());
 
     await().atMost(1, TimeUnit.SECONDS).untilAsserted(() -> {
-      verify(serverMessageService, times(1))
-        .handleIncomingMessage(matches("HM00001\\d{14}"), anyMap());
-      verify(messageService, times(1))
-        .handleResponse(eq(TRANSACTION_RESPONSE_MESSAGE), anyMap());
+      verify(serverMessageHandler, times(1))
+        .handle(matches("HM00001\\d{14}"), any());
+      verify(responseHandler, times(1))
+        .handle(eq(TRANSACTION_RESPONSE_MESSAGE), any());
     });
 
     integrationFlowContext.remove(f1.getId());
@@ -57,15 +65,15 @@ public class StagingDirectorTest extends TestBase {
 
   @Test
   void shouldReceiveHeartbeatMessageFromStatusChannel() {
-    serverMessageService.setMessageType("HM");
+    serverMessageHelper.setMessageType("HM");
     IntegrationFlowContext.IntegrationFlowRegistration f1 =
       flowsService.registerStatusChannelFlow(buildConfiguration());
 
     await().atMost(1, TimeUnit.SECONDS).untilAsserted(() -> {
-      verify(messageService, times(1))
-        .handleStatusMessage(eq(HEARTBEAT_MESSAGE), anyMap());
-      verify(serverMessageService, times(1))
-        .handleIncomingMessage(matches("TR00001\\d{14}000"), anyMap());
+      verify(statusMessageHandler, times(1))
+        .handle(eq(HEARTBEAT_MESSAGE), any());
+      verify(serverMessageHandler, times(1))
+        .handle(matches("TR00001\\d{14}000"), any());
     });
 
     integrationFlowContext.remove(f1.getId());
@@ -79,10 +87,10 @@ public class StagingDirectorTest extends TestBase {
       flowsService.registerPrimaryChannelAccessionPoller(buildConfiguration());
 
     await().atMost(1, TimeUnit.SECONDS).untilAsserted(() -> {
-      verify(serverMessageService, times(1))
-        .handleIncomingMessage(matches("IA\\d{5}\\d{14}697685458679\\s{2}some-callnumber\\s{35}Nod\\s{32}Barnes, Adrian\\s{36}"), anyMap());
-      verify(messageService, times(1))
-        .handleResponse(eq(TRANSACTION_RESPONSE_MESSAGE), anyMap());
+      verify(serverMessageHandler, times(1))
+        .handle(matches("IA\\d{5}\\d{14}697685458679\\s{2}some-callnumber\\s{35}Nod\\s{32}Barnes, Adrian\\s{36}"), any());
+      verify(responseHandler, times(1))
+        .handle(eq(TRANSACTION_RESPONSE_MESSAGE), any());
     });
 
     integrationFlowContext.remove(f1.getId());
@@ -91,13 +99,13 @@ public class StagingDirectorTest extends TestBase {
 
   @Test
   void shouldSetAccessionedWhenInventoryConfirmReceived() {
-    serverMessageService.setMessageType("IC");
+    serverMessageHelper.setMessageType("IC");
     IntegrationFlowContext.IntegrationFlowRegistration f1 =
       flowsService.registerStatusChannelFlow(buildConfiguration());
 
     await().atMost(1, TimeUnit.SECONDS).untilAsserted(() ->
-      verify(serverMessageService, times(1))
-        .handleIncomingMessage(matches("TR00001\\d{14}000"), anyMap()));
+      verify(serverMessageHandler, times(1))
+        .handle(matches("TR00001\\d{14}000"), any()));
 
     integrationFlowContext.remove(f1.getId());
   }

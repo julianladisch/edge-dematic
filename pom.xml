@@ -35,6 +35,7 @@
     <awaitility.version>3.0.0</awaitility.version>
     <embedded.db.version>1.6.2</embedded.db.version>
     <awaitility.version>4.0.3</awaitility.version>
+    <sonar.exclusions>src/main/java/org/folio/rs/domain/**, src/main/java/org/folio/rs/client/AuthnClient.java</sonar.exclusions>
   </properties>
 
   <dependencies>
@@ -316,6 +317,7 @@
           <excludes>
             <exclude>org/folio/ed/integration/**Test.class</exclude>
             <exclude>org/folio/ed/service/**Test.class</exclude>
+            <exclude>org/folio/ed/util/**Test.class</exclude>
           </excludes>
           <includes>
             <include>org/folio/ed/TestSuite.class</include>

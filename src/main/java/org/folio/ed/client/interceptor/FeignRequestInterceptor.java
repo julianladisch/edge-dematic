@@ -7,8 +7,6 @@ import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
-import org.folio.ed.domain.TenantHolder;
-import org.folio.ed.service.SecurityManagerService;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.stereotype.Component;
 
@@ -17,10 +15,7 @@ import java.util.Collections;
 @Component
 @AllArgsConstructor
 public class FeignRequestInterceptor implements RequestInterceptor {
-
   private final FolioExecutionContext folioExecutionContext;
-  private final SecurityManagerService securityManagerService;
-  private final TenantHolder tenantHolder;
 
   @SneakyThrows
   @Override
