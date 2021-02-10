@@ -97,7 +97,7 @@ public class SecurityManagerService {
   @Cacheable(value = "systemUserParameters", key="#tenantId")
   public SystemUserParameters getSystemUserParameters(String tenantId) {
     final String sqlQuery = "SELECT * FROM " + moduleMetadata.getDBSchemaName(tenantId) + ".system_user_parameters";
-    var query = em.createNativeQuery(sqlQuery, SystemUserParameters.class);
+    var query = em.createNativeQuery(sqlQuery, SystemUserParameters.class); //NOSONAR
     return (SystemUserParameters) query.getSingleResult();
   }
 
