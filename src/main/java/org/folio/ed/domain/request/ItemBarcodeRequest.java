@@ -1,4 +1,4 @@
-package org.folio.ed.domain.dto;
+package org.folio.ed.domain.request;
 
 import lombok.Data;
 

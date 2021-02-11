@@ -1,10 +1,9 @@
 package org.folio.ed.client;
 
-
-import org.folio.ed.domain.dto.ItemBarcodeRequest;
+import org.folio.ed.domain.dto.AccessionQueueRecord;
 import org.folio.ed.domain.dto.ResultList;
-import org.folio.ed.domain.entity.AccessionQueueRecord;
-import org.folio.ed.domain.entity.RetrievalQueueRecord;
+import org.folio.ed.domain.dto.RetrievalQueueRecord;
+import org.folio.ed.domain.request.ItemBarcodeRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,11 +22,12 @@ public interface RemoteStorageClient {
   ResultList<RetrievalQueueRecord> getRetrievalsByQuery(@RequestParam("query") String query);
 
   @PutMapping("/accessions/barcode/{barcode}")
-  String setAccessionedByBarcode(@PathVariable("barcode") String barcode);
+  ResponseEntity<String> setAccessionedByBarcode(@PathVariable("barcode") String barcode);
 
   @PutMapping("/retrievals/barcode/{barcode}")
-  String setRetrievalByBarcode(@PathVariable("barcode") String barcode);
+  ResponseEntity<String> setRetrievalByBarcode(@PathVariable("barcode") String barcode);
 
   @PostMapping("/{configurationId}/checkInItem")
-  ResponseEntity<String> checkInItem(@PathVariable("configurationId") String configurationId, ItemBarcodeRequest itemBarcodeRequest);
+  ResponseEntity<String> checkInItem(@PathVariable("configurationId") String configurationId,
+      ItemBarcodeRequest itemBarcodeRequest);
 }

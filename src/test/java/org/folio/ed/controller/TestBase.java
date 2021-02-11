@@ -1,14 +1,15 @@
 package org.folio.ed.controller;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
-import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
-import lombok.extern.log4j.Log4j2;
-import org.folio.ed.controller.TenantController;
-import org.folio.ed.domain.AsyncFolioExecutionContext;
+import static java.util.Collections.singletonList;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.scope.FolioExecutionScopeExecutionContextManager;
-import org.folio.tenant.domain.dto.Parameter;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -18,26 +19,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.util.SocketUtils;
 import org.springframework.web.client.RestTemplate;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+
+import lombok.extern.log4j.Log4j2;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource("classpath:application-test.yml")
-@ActiveProfiles("TestDB")
-@EnableTransactionManagement
-@AutoConfigureEmbeddedDatabase(beanName = "dataSource")
 @Log4j2
 public class TestBase {
   public static final String METADATA = "metadata";
-  private static HttpHeaders headers;
+  private static Map<String, Collection<String>> headers;
   private static RestTemplate restTemplate;
   public static WireMockServer wireMockServer;
   public static String TEST_TENANT = "test_tenant";
@@ -55,14 +52,15 @@ public class TestBase {
 
   @BeforeEach
   void setUp() {
-      FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(
-        AsyncFolioExecutionContext.builder()
-          .tenantId(TEST_TENANT)
-          .moduleMetadata(moduleMetadata)
-          .okapiUrl(getOkapiUrl()).build());
-      tenantController.postTenant(new TenantAttributes().moduleTo("edge-dematic"));
+    headers = new HashMap<>();
+    headers.put(XOkapiHeaders.URL, singletonList(getOkapiUrl()));
+    headers.put(XOkapiHeaders.TENANT, singletonList(TEST_TENANT));
+    FolioExecutionScopeExecutionContextManager
+      .beginFolioExecutionContext(new DefaultFolioExecutionContext(moduleMetadata, headers));
 
-      wireMockServer.resetAll();
+    tenantController.postTenant(new TenantAttributes().moduleTo("edge-dematic"));
+
+    wireMockServer.resetAll();
   }
 
   public static String getOkapiUrl() {
@@ -74,12 +72,9 @@ public class TestBase {
     tenantController.deleteTenant();
   }
 
-
   @BeforeAll
   static void testSetup() {
     restTemplate = new RestTemplate();
-    headers = new HttpHeaders();
-    headers.set("Content-Type", "application/xml");
 
     wireMockServer = new WireMockServer(WIRE_MOCK_PORT);
     wireMockServer.start();
@@ -95,11 +90,11 @@ public class TestBase {
   }
 
   public <T> ResponseEntity<T> post(String url, Object entity, Class<T> clazz) {
-    return restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(entity, headers), clazz);
+    return restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(entity), clazz);
   }
 
   public ResponseEntity<String> put(String url, Object entity) {
-    return restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(entity, headers), String.class);
+    return restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(entity), String.class);
   }
 
   public ResponseEntity<String> delete(String url) {

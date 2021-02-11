@@ -1,11 +1,11 @@
 package org.folio.ed.service;
 
-import lombok.RequiredArgsConstructor;
+import java.util.stream.Collectors;
 
 import org.folio.ed.client.RemoteStorageClient;
-import org.folio.ed.domain.dto.ItemBarcodeRequest;
-import org.folio.ed.domain.entity.AccessionQueueRecord;
-import org.folio.ed.domain.entity.RetrievalQueueRecord;
+import org.folio.ed.domain.dto.AccessionQueueRecord;
+import org.folio.ed.domain.dto.RetrievalQueueRecord;
+import org.folio.ed.domain.request.ItemBarcodeRequest;
 import org.folio.rs.domain.dto.AsrItem;
 import org.folio.rs.domain.dto.AsrItems;
 import org.folio.rs.domain.dto.AsrRequest;
@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -25,20 +25,21 @@ public class RemoteStorageService {
   public AsrItems getItems(String storageId) {
     var asrItems = new AsrItems();
     asrItems.asrItems(remoteStorageClient.getAccessionsByQuery(buildQueryByStorageId(storageId))
-      .getResult().stream()
+      .getResult()
+      .stream()
       .map(this::mapToAsrItem)
       .collect(Collectors.toList()));
     return asrItems;
   }
 
   @Async
-  public void setAccessionedAsync(String itemBarcode)  {
-    remoteStorageClient.setAccessionedByBarcode(itemBarcode);
+  public ResponseEntity<String> setAccessionedAsync(String itemBarcode) {
+    return remoteStorageClient.setAccessionedByBarcode(itemBarcode);
   }
 
   @Async
-  public void setRetrievedAsync(String itemBarcode)  {
-    remoteStorageClient.setRetrievalByBarcode(itemBarcode);
+  public ResponseEntity<String> setRetrievedAsync(String itemBarcode) {
+    return remoteStorageClient.setRetrievalByBarcode(itemBarcode);
   }
 
   public ResponseEntity<String> checkInItemByBarcode(String remoteStorageConfigurationId, String itemBarcode) {
@@ -50,7 +51,8 @@ public class RemoteStorageService {
   public AsrRequests getRequests(String remoteStorageConfigurationId) {
     var asrRequests = new AsrRequests();
     asrRequests.asrRequests(remoteStorageClient.getRetrievalsByQuery(buildQueryByStorageId(remoteStorageConfigurationId))
-      .getResult().stream()
+      .getResult()
+      .stream()
       .map(this::mapToAsrRequest)
       .collect(Collectors.toList()));
     return asrRequests;

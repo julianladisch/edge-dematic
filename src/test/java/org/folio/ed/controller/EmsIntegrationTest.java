@@ -13,7 +13,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 @Log4j2
-public class AsrServiceTest extends TestBase {
+public class EmsIntegrationTest extends TestBase {
 
   private static final String LOOKUP_NEW_ASR_ITEM = "http://localhost:%s/asrService/asr/lookupNewAsrItems";
   private static final String LOOKUP_ASR_REQUESTS = "http://localhost:%s/asrService/asr/lookupAsrRequests";
@@ -36,7 +36,6 @@ public class AsrServiceTest extends TestBase {
     ResponseEntity<String> responseEntity = get(lookupNewAsrItem + "/de17bad7-2a30-4f1c-bee5-f653ded15629", String.class);
     log.info(responseEntity.getBody());
     assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
-//    assertThat(responseEntity.getBody().getTotalRecords(), is(1));
   }
 
   @Test

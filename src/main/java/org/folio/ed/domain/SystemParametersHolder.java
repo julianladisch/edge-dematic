@@ -1,7 +1,8 @@
 package org.folio.ed.domain;
 
-import lombok.Data;
 import org.springframework.stereotype.Component;
+
+import lombok.Data;
 
 @Component
 @Data
