@@ -30,13 +30,12 @@
     <mapstruct.version>1.4.1.Final</mapstruct.version>
     <json.version>20200518</json.version>
     <hazelcast.version>4.0.2</hazelcast.version>
-    <spring-kafka.version>2.6.3</spring-kafka.version>
     <wiremock.version>2.27.2</wiremock.version>
     <awaitility.version>3.0.0</awaitility.version>
-    <spring-kafka-test.version>2.6.4</spring-kafka-test.version>
     <embedded.db.version>1.6.2</embedded.db.version>
-    <sonar.exclusions>src/main/java/org/folio/rs/domain/**, src/main/java/org/folio/rs/client/AuthnClient.java, src/main/java/org/folio/rs/config/properties/** </sonar.exclusions>
-    <edge-dematic.yaml.file>${project.basedir}/src/main/resources/swagger.api/edge-dematic.yaml</edge-dematic.yaml.file>
+    <awaitility.version>4.0.3</awaitility.version>
+    <openfeign.version>2.2.1.RELEASE</openfeign.version>
+    <sonar.exclusions>src/main/java/org/folio/ed/domain/**, src/main/java/org/folio/ed/client/AuthnClient.java</sonar.exclusions>
   </properties>
 
   <dependencies>
@@ -72,6 +71,30 @@
     </dependency>
 
     <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-integration</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.integration</groupId>
+      <artifactId>spring-integration-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.integration</groupId>
+      <artifactId>spring-integration-ip</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-openfeign</artifactId>
+      <version>${openfeign.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-cache</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-openfeign</artifactId>
       <version>2.2.1.RELEASE</version>
@@ -95,9 +118,21 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>2.6</version>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+      <version>${mapstruct.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct-processor</artifactId>
+      <version>${mapstruct.version}</version>
+      <scope>provided</scope>
     </dependency>
 
     <!-- Test dependencies -->
@@ -122,9 +157,34 @@
     </dependency>
 
     <dependency>
+      <groupId>io.zonky.test</groupId>
+      <artifactId>embedded-database-spring-test</artifactId>
+      <version>${embedded.db.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.integration</groupId>
+      <artifactId>spring-integration-event</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.integration</groupId>
+      <artifactId>spring-integration-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>com.github.tomakehurst</groupId>
       <artifactId>wiremock-standalone</artifactId>
       <version>${wiremock.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <version>${awaitility.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -224,6 +284,45 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <release>11</release>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.mapstruct</groupId>
+              <artifactId>mapstruct-processor</artifactId>
+              <version>${mapstruct.version}</version>
+            </path>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.2</version>
+        <configuration>
+          <excludes>
+            <exclude>org/folio/ed/integration/**Test.class</exclude>
+            <exclude>org/folio/ed/service/**Test.class</exclude>
+            <exclude>org/folio/ed/util/**Test.class</exclude>
+          </excludes>
+          <includes>
+            <include>org/folio/ed/TestSuite.class</include>
+          </includes>
+          <useSystemClassLoader>false</useSystemClassLoader>
+        </configuration>
       </plugin>
 
       <plugin>
