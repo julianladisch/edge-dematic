@@ -86,7 +86,6 @@ public class EmsIntegrationTest extends TestBase {
 
     assertThat(setAccessionEvent.getResponse()
       .getStatus(), is(204));
-
   }
 
   @Test
