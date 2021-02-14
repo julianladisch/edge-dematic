@@ -23,6 +23,7 @@ public class LookupAsrRequestsController implements LookupAsrRequestsApi {
 
   private final RemoteStorageService remoteStorageService;
 
+  @Override
   public ResponseEntity<AsrRequests> getAsrRequests(
       @ApiParam(required = true) @PathVariable("remoteStorageConfigurationId") String remoteStorageConfigurationId) {
 
@@ -34,7 +35,7 @@ public class LookupAsrRequestsController implements LookupAsrRequestsApi {
       return new ResponseEntity<>(asrRequests, headers, HttpStatus.OK);
     } finally {
       asrRequests.getAsrRequests()
-        .forEach(x -> remoteStorageService.setRetrievedAsync(x.getItemBarcode()));
+        .forEach(asrRequest -> remoteStorageService.setRetrievedAsync(asrRequest.getItemBarcode()));
     }
   }
 }
