@@ -1,4 +1,4 @@
-package org.folio.ed.config;
+package org.folio.ed.support;
 
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Configuration;

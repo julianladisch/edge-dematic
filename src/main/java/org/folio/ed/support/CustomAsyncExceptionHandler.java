@@ -1,4 +1,4 @@
-package org.folio.ed.config;
+package org.folio.ed.support;
 
 import java.lang.reflect.Method;
 

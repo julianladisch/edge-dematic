@@ -1,4 +1,4 @@
-package org.folio.ed.config;
+package org.folio.ed.support;
 
 import org.folio.ed.client.EnrichHeadersClient;
 import org.folio.ed.client.logger.SensitiveDataProtectionLogger;

@@ -9,6 +9,14 @@
     {
       "id": "remote-storage-accessions",
       "version": "1.0"
+    },
+    {
+      "id": "remote-storage-retrievals",
+      "version": "1.0"
+    },
+    {
+      "id": "remote-storage-check-in",
+      "version": "1.0"
     }
   ],
   "provides": [
@@ -36,7 +44,7 @@
         },
         {
           "methods": ["POST"],
-          "pathPattern": "/asrService/asr/updateASRItemStatusAvailable/{remoteStorageConfigurationId}",
+          "pathPattern": "/asrService/asr/updateAsrItemStatusAvailable/{remoteStorageConfigurationId}",
           "permissionsRequired" : [],
           "modulePermissions": [
             "remote-storage.check-in.item.post"
@@ -51,7 +59,14 @@
       "handlers": [
         {
           "methods": ["POST"],
-          "pathPattern": "/_/tenant"
+          "pathPattern": "/_/tenant",
+          "modulePermissions": [
+            "users.collection.get",
+            "users.item.post",
+            "users.item.put",
+            "login.item.post",
+            "perms.users.item.post"
+          ]
         }, {
           "methods": ["DELETE"],
           "pathPattern": "/_/tenant"

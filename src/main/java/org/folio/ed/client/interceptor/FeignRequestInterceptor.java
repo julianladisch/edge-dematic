@@ -7,7 +7,10 @@ import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.folio.ed.domain.AsyncFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
+import org.folio.spring.scope.FolioExecutionScopeExecutionContextManager;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;

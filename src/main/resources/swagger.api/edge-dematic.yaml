@@ -14,6 +14,13 @@ paths:
             application/xml:
               schema:
                 $ref: "#/components/schemas/asrItems"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
       description: Get a list of items
       operationId: getAsrItems
       parameters:
@@ -27,6 +34,13 @@ paths:
             application/xml:
               schema:
                 $ref: "#/components/schemas/asrRequests"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
       description: Get a list of items
       operationId: getAsrRequests
       parameters:
@@ -42,6 +56,13 @@ paths:
       responses:
         '200':
           description: "The polling API for accessions"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
       description: Get a list of items
       operationId: updateAsrItem
       parameters:
@@ -98,7 +119,6 @@ components:
             attribute: true
         holdId:
           type: string
-          format: uuid
         itemBarcode:
           type: string
         title:
@@ -113,6 +133,7 @@ components:
           type: string
         requestDate:
           type: string
+          format: date-time
         pickupLocation:
           type: string
         requestStatus:

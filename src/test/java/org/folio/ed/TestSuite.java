@@ -1,5 +1,6 @@
 package org.folio.ed;
 
+import org.folio.ed.integration.EmsIntegrationTest;
 import org.folio.ed.integration.StagingDirectorTest;
 import org.folio.ed.service.SecurityManagerServiceTest;
 import org.folio.ed.util.StagingDirectorStatusHelperTest;
@@ -12,6 +13,10 @@ public class TestSuite {
 
   @Nested
   class StagingDirectorTestNested extends StagingDirectorTest {
+  }
+
+  @Nested
+  class EmsIntegrationTestNested extends EmsIntegrationTest {
   }
 
   @Nested

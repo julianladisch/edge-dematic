@@ -19,6 +19,7 @@ public class UpdateAsrItemStatusAvailableController implements UpdateAsrItemStat
 
   private final RemoteStorageService remoteStorageService;
 
+  @Override
   public ResponseEntity<Void> updateAsrItem(String remoteStorageConfigurationId, UpdateAsrItem updateAsrItem) {
     remoteStorageService.checkInItemByBarcode(remoteStorageConfigurationId, updateAsrItem.getItemBarcode());
     return new ResponseEntity<>(HttpStatus.CREATED);

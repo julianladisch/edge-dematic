@@ -5,25 +5,22 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RetrievalQueueRecord {
-  private UUID holdId;
+  private String holdId;
+  private String itemBarcode;
+  private String instanceTitle;
+  private String instanceAuthor;
+  private String callNumber;
+  private String patronBarcode;
+  private String patronName;
+  private LocalDateTime retrievedDateTime;
+  private String pickupLocation;
   private String requestStatus;
   private String requestNote;
-  private String callNumber;
-  private String itemBarcode;
-  private String patronName;
-  private String patronBarcode;
-  private LocalDateTime creationDateTime;
-  private LocalDateTime retrievedDateTime;
-  private UUID pickupLocation;
+  private LocalDateTime createdDateTime;
+  private UUID remoteStorageId;
 }
