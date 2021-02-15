@@ -2,7 +2,6 @@ package org.folio.ed.client;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.folio.ed.domain.SystemParametersHolder;
-import org.folio.ed.service.SecurityManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import feign.Client;
