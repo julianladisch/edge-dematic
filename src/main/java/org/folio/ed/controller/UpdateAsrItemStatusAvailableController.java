@@ -2,13 +2,11 @@ package org.folio.ed.controller;
 
 import javax.validation.Valid;
 
-import org.folio.ed.domain.AsyncFolioExecutionContext;
 import org.folio.ed.domain.SystemParametersHolder;
 import org.folio.ed.service.RemoteStorageService;
 import org.folio.ed.service.SecurityManagerService;
 import org.folio.rs.domain.dto.UpdateAsrItem;
 import org.folio.rs.rest.resource.UpdateAsrItemStatusAvailableApi;
-import org.folio.spring.scope.FolioExecutionScopeExecutionContextManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
