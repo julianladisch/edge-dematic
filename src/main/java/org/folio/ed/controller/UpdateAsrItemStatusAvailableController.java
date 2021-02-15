@@ -2,7 +2,9 @@ package org.folio.ed.controller;
 
 import javax.validation.Valid;
 
+import org.folio.ed.domain.SystemParametersHolder;
 import org.folio.ed.service.RemoteStorageService;
+import org.folio.ed.service.SecurityManagerService;
 import org.folio.rs.domain.dto.UpdateAsrItem;
 import org.folio.rs.rest.resource.UpdateAsrItemStatusAvailableApi;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,8 @@ import lombok.extern.log4j.Log4j2;
 public class UpdateAsrItemStatusAvailableController implements UpdateAsrItemStatusAvailableApi {
 
   private final RemoteStorageService remoteStorageService;
+  private final SystemParametersHolder systemParametersHolder;
+  private final SecurityManagerService securityManagerService;
 
   @Override
   public ResponseEntity<Void> updateAsrItem(

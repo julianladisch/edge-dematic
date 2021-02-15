@@ -167,7 +167,7 @@ public class EmsIntegrationTest extends TestBase {
 
     // Verify call to mod-remote-storage
     assertThat(serveEvents.size(), is(1));
-    ServeEvent checkInServeEvent = serveEvents.get("/remote-storage/de17bad7-2a30-4f1c-bee5-f653ded15629/checkInItem");
+    ServeEvent checkInServeEvent = serveEvents.get("/remote-storage/retrieve/de17bad7-2a30-4f1c-bee5-f653ded15629/checkInItem");
     assertThat(checkInServeEvent.getRequest()
       .getBodyAsString(), containsString("{\"itemBarcode\":\"123456789\"}"));
 
