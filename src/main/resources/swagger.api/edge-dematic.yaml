@@ -1,0 +1,157 @@
+openapi: 3.0.0
+info:
+  title: Edge Dematic API
+  version: v1
+servers:
+  - url: /asrService/asr/
+paths:
+  /lookupNewAsrItems/{remoteStorageConfigurationId}:
+    get:
+      responses:
+        '200':
+          description: "The polling API for accessions"
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/asrItems"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      description: Get a list of items
+      operationId: getAsrItems
+      parameters:
+        - $ref: "#/components/parameters/storage_id"
+  /lookupAsrRequests/{remoteStorageConfigurationId}:
+    get:
+      responses:
+        '200':
+          description: "The polling API for accessions"
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/asrRequests"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      description: Get a list of items
+      operationId: getAsrRequests
+      parameters:
+        - $ref: "#/components/parameters/storage_id"
+  /updateAsrItemStatusAvailable/{remoteStorageConfigurationId}:
+    post:
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/updateAsrItem"
+        required: true
+      responses:
+        '200':
+          description: "The polling API for accessions"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      description: Get a list of items
+      operationId: updateAsrItem
+      parameters:
+        - $ref: "#/components/parameters/storage_id"
+components:
+  schemas:
+    asrItems:
+      type: object
+      properties:
+        asrItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/asrItem"
+          xml:
+            name: asrItem
+            wrapped: true
+      xml:
+        name: asrItems
+        wrapped: true
+    asrItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          xml:
+            attribute: true
+        author:
+          type: string
+        title:
+          type: string
+        itemNumber:
+          type: string
+        callNumber:
+          type: string
+      xml:
+        name: asrItem
+    asrRequests:
+      type: object
+      properties:
+        asrRequests:
+          type: array
+          items:
+            $ref: "#/components/schemas/asrRequest"
+          xml:
+            name: asrRequest
+            wrapped: true
+      xml:
+        name: asrRequest
+        wrapped: true
+    asrRequest:
+      type: object
+      properties:
+        holdId:
+          type: string
+        itemBarcode:
+          type: string
+        title:
+          type: string
+        author:
+          type: string
+        callNumber:
+          type: string
+        patronBarcode:
+          type: string
+        patronName:
+          type: string
+        requestDate:
+          type: string
+          format: date-time
+        pickupLocation:
+          type: string
+        requestStatus:
+          type: string
+        requestNote:
+          type: string
+    updateAsrItem:
+      type: object
+      properties:
+        itemBarcode:
+          type: string
+        itemStatus:
+          type: string
+        operatorId:
+          type: string
+  parameters:
+    storage_id:
+      name: remoteStorageConfigurationId
+      in: path
+      required: true
+      schema:
+        type: string
+

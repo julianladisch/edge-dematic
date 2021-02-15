@@ -1,8 +1,7 @@
 package org.folio.ed;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
-import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
-import lombok.extern.log4j.Log4j2;
+import static org.folio.ed.controller.TenantController.PARAMETER_LOAD_SAMPLE;
+
 import org.folio.ed.controller.TenantController;
 import org.folio.ed.domain.AsyncFolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -26,7 +25,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.util.SocketUtils;
 import org.springframework.web.client.RestTemplate;
 
-import static org.folio.ed.controller.TenantController.PARAMETER_LOAD_SAMPLE;
+import com.github.tomakehurst.wiremock.WireMockServer;
+
+import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
+import lombok.extern.log4j.Log4j2;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource("classpath:application-test.yml")
@@ -35,7 +37,7 @@ import static org.folio.ed.controller.TenantController.PARAMETER_LOAD_SAMPLE;
 @AutoConfigureEmbeddedDatabase(beanName = "dataSource")
 @Log4j2
 public class TestBase {
-  public static final String METADATA = "metadata";
+
   private static HttpHeaders headers;
   private static RestTemplate restTemplate;
   public static WireMockServer wireMockServer;
@@ -54,15 +56,16 @@ public class TestBase {
 
   @BeforeEach
   void setUp() {
-      FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(
-        AsyncFolioExecutionContext.builder()
-          .tenantId(TEST_TENANT)
-          .moduleMetadata(moduleMetadata)
-          .okapiUrl(getOkapiUrl()).build());
-      tenantController.postTenant(new TenantAttributes().moduleTo("edge-dematic")
-        .addParametersItem(new Parameter().key(PARAMETER_LOAD_SAMPLE).value("true")));
+    FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(AsyncFolioExecutionContext.builder()
+      .tenantId(TEST_TENANT)
+      .moduleMetadata(moduleMetadata)
+      .okapiUrl(getOkapiUrl())
+      .build());
+    tenantController.postTenant(new TenantAttributes().moduleTo("edge-dematic")
+      .addParametersItem(new Parameter().key(PARAMETER_LOAD_SAMPLE)
+        .value("true")));
 
-      wireMockServer.resetAll();
+    wireMockServer.resetAll();
   }
 
   public static String getOkapiUrl() {
@@ -74,10 +77,10 @@ public class TestBase {
     tenantController.deleteTenant();
   }
 
-
   @BeforeAll
   static void testSetup() {
     restTemplate = new RestTemplate();
+    headers = new HttpHeaders();
 
     wireMockServer = new WireMockServer(WIRE_MOCK_PORT);
     wireMockServer.start();

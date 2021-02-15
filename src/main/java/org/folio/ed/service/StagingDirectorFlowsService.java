@@ -6,7 +6,7 @@ import static org.folio.ed.util.StagingDirectorConfigurationsHelper.resolvePort;
 
 import lombok.RequiredArgsConstructor;
 import org.folio.ed.domain.AsyncFolioExecutionContext;
-import org.folio.ed.domain.TenantHolder;
+import org.folio.ed.domain.SystemParametersHolder;
 import org.folio.ed.domain.dto.Configuration;
 import org.folio.ed.handler.ResponseHandler;
 import org.folio.ed.handler.StatusMessageHandler;
@@ -31,14 +31,14 @@ public class StagingDirectorFlowsService {
   private final IntegrationFlowContext integrationFlowContext;
   private final RemoteStorageService remoteStorageService;
   private final SecurityManagerService securityManagerService;
-  private final TenantHolder tenantHolder;
+  private final SystemParametersHolder systemParametersHolder;
   private final StatusMessageHandler statusMessageHandler;
   private final ResponseHandler responseHandler;
 
   @Scheduled(fixedDelayString = "${configurations.update.timeframe}")
   public void updateIntegrationFlows() {
     removeExistingFlows();
-    var systemUserParameters = securityManagerService.getSystemUserParameters(tenantHolder.getTenantId());
+    var systemUserParameters = securityManagerService.getSystemUserParameters(systemParametersHolder.getTenantId());
     FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(
       new AsyncFolioExecutionContext(systemUserParameters, null));
     remoteStorageService.getStagingDirectorConfigurations().forEach(this::createFlows);

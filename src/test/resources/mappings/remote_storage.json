@@ -1,0 +1,115 @@
+{
+  "mappings" : [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/remote-storage/configurations"
+      },
+      "response": {
+        "status": 200,
+        "body": "{\"configurations\":[{\"id\":\"de17bad7-2a30-4f1c-bee5-f653ded15629\",\"name\":\"RS1\",\"providerName\":\"Dematic_SD\",\"url\":\"localhost:10001\",\"statusUrl\":\"localhost:10002\",\"accessionDelay\":2,\"accessionTimeUnit\":\"minutes\"}],\"totalRecords\":1}",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/remote-storage/accessions?query=storageId=de17bad7-2a30-4f1c-bee5-f653ded15629"
+      },
+      "response": {
+        "status": 200,
+        "body": "{\"totalRecords\":1,\"accessions\":[{\"id\":\"1a06829d-490d-4009-9f1a-51a60c4afa0c\",\"itemBarcode\":\"697685458679\",\"createdDateTime\":\"2021-02-03T06:31:35.550\",\"remoteStorageId\":\"de17bad7-2a30-4f1c-bee5-f653ded15629\",\"callNumber\":\"some-callnumber\",\"instanceTitle\":\"Nod\",\"instanceAuthor\":\"Barnes, Adrian\"}]}",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }, {
+      "request": {
+        "method": "GET",
+        "url": "/remote-storage/accessions?query=storageId=c7310e5e-c4be-4d8f-943c-faaa35679aaa"
+      },
+      "response": {
+        "status": 500,
+        "headers": {
+          "Content-Type": "text/plain"
+        }
+      }
+    }, {
+      "request": {
+        "method": "PUT",
+        "url": "/remote-storage/accessions/barcode/697685458679"
+      },
+      "response": {
+        "status": 204,
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }, {
+      "request": {
+        "method": "GET",
+        "url": "/remote-storage/retrievals?query=storageId=de17bad7-2a30-4f1c-bee5-f653ded15629"
+      },
+      "response": {
+        "status": 200,
+        "body": "{\"totalRecords\":1,\"retrievals\":[{\"id\":\"5a38cc7d-b8c8-4a43-ad07-14c784dfbcbb\",\"holdId\":\"hold_id\",\"itemBarcode\":\"697685458679\",\"instanceTitle\":\"Some title\",\"instanceAuthor\":\"Some Author\",\"callNumber\":\"+1-111-222\",\"patronBarcode\":\"987654321\",\"patronName\":\"Some Patron Name\",\"retrievedDateTime\":\"2021-02-03T06:31:35.550\",\"pickupLocation\":\"pickup_location\",\"requestStatus\":\"Request-Status\",\"requestNote\":\"Request_Note\",\"createdDateTime\":null,\"remoteStorageId\":\"de17bad7-2a30-4f1c-bee5-f653ded15629\",\"metadata\":null}]}",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },{
+      "request": {
+        "method": "GET",
+        "url": "/remote-storage/retrievals?query=storageId=c7310e5e-c4be-4d8f-943c-faaa35679aaa"
+      },
+      "response": {
+        "status": 500,
+        "headers": {
+          "Content-Type": "text/plain"
+        }
+      }
+    }, {
+      "request": {
+        "method": "PUT",
+        "url": "/remote-storage/retrievals/barcode/697685458679"
+      },
+      "response": {
+        "status": 204,
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/remote-storage/de17bad7-2a30-4f1c-bee5-f653ded15629/checkInItem",
+        "bodyPatterns" : [ {
+          "equalToJson" : "{\"itemBarcode\" : \"error-barcode\"}"
+        } ]
+      },
+      "response": {
+        "status": 500,
+        "headers": {
+          "Content-Type": "text/plain"
+        }
+      }
+    }, {
+      "request": {
+        "method": "POST",
+        "url": "/remote-storage/de17bad7-2a30-4f1c-bee5-f653ded15629/checkInItem",
+        "bodyPatterns" : [ {
+          "equalToJson" : "{\"itemBarcode\" : \"123456789\"}"
+        } ]
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

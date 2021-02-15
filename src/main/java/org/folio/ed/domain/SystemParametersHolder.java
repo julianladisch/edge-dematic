@@ -1,10 +1,12 @@
 package org.folio.ed.domain;
 
-import lombok.Data;
 import org.springframework.stereotype.Component;
+
+import lombok.Data;
 
 @Component
 @Data
-public class TenantHolder {
+public class SystemParametersHolder {
   private String tenantId;
+  private String okapiUrl;
 }
