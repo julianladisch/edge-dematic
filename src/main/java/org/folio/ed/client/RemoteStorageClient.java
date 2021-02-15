@@ -28,7 +28,7 @@ public interface RemoteStorageClient {
   @PutMapping("/retrievals/barcode/{barcode}")
   ResponseEntity<String> setRetrievalByBarcode(@PathVariable("barcode") String barcode);
 
-  @PostMapping("/{configurationId}/checkInItem")
+  @PostMapping("/retrieve/{configurationId}/checkInItem")
   ResponseEntity<String> checkInItem(@PathVariable("configurationId") String configurationId,
       ItemBarcodeRequest itemBarcodeRequest);
 
