@@ -1,7 +1,12 @@
 package org.folio.ed.service;
 
 import static java.util.stream.Collectors.toList;
+import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
 
 import org.folio.ed.TestBase;
 import org.folio.ed.domain.entity.SystemUserParameters;
@@ -47,9 +52,10 @@ public class SecurityManagerServiceTest extends TestBase {
     credentialsRepository.save(buildSystemUserParameters(EXISTED_USER));
     securityManagerService.prepareSystemUser(EXISTED_USER, PASSWORD, getOkapiUrl(), TEST_TENANT);
     List<String> paths = wireMockServer.getAllServeEvents().stream().map(e -> e.getRequest().getUrl()).collect(toList());
-    assertThat(paths, Matchers.containsInAnyOrder("/authn/login", "/perms/users/c78aa9ec-b7d3-4d53-9e43-20296f39b496/permissions?indexField=userId",
-      "/perms/users/c78aa9ec-b7d3-4d53-9e43-20296f39b496/permissions?indexField=userId", "/perms/users/c78aa9ec-b7d3-4d53-9e43-20296f39b496/permissions?indexField=userId",
-      "/users/c78aa9ec-b7d3-4d53-9e43-20296f39b496", "/users?query=username==existed_user"));
+    assertTrue(paths.contains("/authn/login"));
+    assertTrue(paths.contains("/perms/users/c78aa9ec-b7d3-4d53-9e43-20296f39b496/permissions?indexField=userId"));
+    assertTrue(paths.contains("/users/c78aa9ec-b7d3-4d53-9e43-20296f39b496"));
+    assertTrue(paths.contains("/users?query=username==existed_user"));
   }
 
   private SystemUserParameters buildSystemUserParameters(String username) {

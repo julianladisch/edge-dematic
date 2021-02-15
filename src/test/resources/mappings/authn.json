@@ -9,7 +9,7 @@
         "status": 200,
         "headers": {
           "Content-Type": "application/json",
-          "x-okapi-token": "AAA-BBB-CCC"
+          "x-okapi-token": "AAA-BBB-CCC-DDD"
         }
       }
     },

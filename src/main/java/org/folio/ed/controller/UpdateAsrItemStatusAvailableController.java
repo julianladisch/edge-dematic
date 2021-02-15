@@ -34,9 +34,6 @@ public class UpdateAsrItemStatusAvailableController implements UpdateAsrItemStat
   public ResponseEntity<Void> updateAsrItem(
       @ApiParam(required = true) @PathVariable("remoteStorageConfigurationId") String remoteStorageConfigurationId,
       @ApiParam(required = true) @Valid @RequestBody UpdateAsrItem updateAsrItem) {
-    var systemUserParameters = securityManagerService.getSystemUserParameters(systemParametersHolder.getTenantId());
-    FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(
-      new AsyncFolioExecutionContext(systemUserParameters, null));
     remoteStorageService.checkInItemByBarcode(remoteStorageConfigurationId, updateAsrItem.getItemBarcode());
     return new ResponseEntity<>(HttpStatus.CREATED);
   }

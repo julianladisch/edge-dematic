@@ -5,13 +5,11 @@ import static org.folio.ed.util.StagingDirectorConfigurationsHelper.resolvePolli
 import static org.folio.ed.util.StagingDirectorConfigurationsHelper.resolvePort;
 
 import lombok.RequiredArgsConstructor;
-import org.folio.ed.domain.AsyncFolioExecutionContext;
 import org.folio.ed.domain.SystemParametersHolder;
 import org.folio.ed.domain.dto.Configuration;
 import org.folio.ed.handler.ResponseHandler;
 import org.folio.ed.handler.StatusMessageHandler;
 import org.folio.ed.util.StagingDirectorMessageHelper;
-import org.folio.spring.scope.FolioExecutionScopeExecutionContextManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.MessageChannels;
@@ -38,9 +36,6 @@ public class StagingDirectorFlowsService {
   @Scheduled(fixedDelayString = "${configurations.update.timeframe}")
   public void updateIntegrationFlows() {
     removeExistingFlows();
-    var systemUserParameters = securityManagerService.getSystemUserParameters(systemParametersHolder.getTenantId());
-    FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(
-      new AsyncFolioExecutionContext(systemUserParameters, null));
     remoteStorageService.getStagingDirectorConfigurations().forEach(this::createFlows);
   }
 

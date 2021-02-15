@@ -2,3 +2,5 @@ remote-storage.configurations.collection.get
 remote-storage.accessions.collection.get
 remote-storage.accessions.item.put
 remote-storage.check-in.item.post
+remote-storage.retrievals.collection.get
+remote-storage.retrievals.item.put
