@@ -97,6 +97,8 @@ components:
           type: string
         callNumber:
           type: string
+      xml:
+        name: asrItem
     asrRequests:
       type: object
       properties:
@@ -113,10 +115,6 @@ components:
     asrRequest:
       type: object
       properties:
-        id:
-          type: integer
-          xml:
-            attribute: true
         holdId:
           type: string
         itemBarcode:
