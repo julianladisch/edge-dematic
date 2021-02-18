@@ -10,26 +10,41 @@ import org.folio.ed.domain.SystemParametersHolder;
 import org.folio.ed.service.SecurityManagerService;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.scope.FolioExecutionScopeExecutionContextManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.github.jknack.handlebars.internal.lang3.StringUtils;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
-import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 
 @Component
-@AllArgsConstructor
 public class FeignRequestInterceptor implements RequestInterceptor {
-  private final FolioExecutionContext folioExecutionContext;
-  private final SecurityManagerService securityManagerService;
-  private final SystemParametersHolder systemParametersHolder;
+
+  @Autowired
+  private FolioExecutionContext folioExecutionContext;
+  @Autowired
+  private SecurityManagerService securityManagerService;
+  @Autowired
+  private SystemParametersHolder systemParametersHolder;
+
+  private static final String[] REMOTE_STORAGE_URLS = { "/retrieve", "/configurations", "/accessions", "/retrievals" };
 
   @SneakyThrows
   @Override
   public void apply(RequestTemplate template) {
-    refreshFolioContext();
+
+    if (isContextNeededToBeRefreshed(template)) {
+      refreshFolioContext();
+    }
+
     template.header(TOKEN, Collections.singletonList(folioExecutionContext.getToken()));
     template.header(TENANT, Collections.singletonList(folioExecutionContext.getTenantId()));
+  }
+
+  private boolean isContextNeededToBeRefreshed(RequestTemplate template) {
+    return StringUtils.startsWithAny(template.url(), REMOTE_STORAGE_URLS);
   }
 
   private void refreshFolioContext() {

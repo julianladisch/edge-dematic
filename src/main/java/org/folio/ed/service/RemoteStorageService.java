@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.folio.ed.client.RemoteStorageClient;
-import org.folio.ed.domain.AsyncFolioExecutionContext;
 import org.folio.ed.domain.SystemParametersHolder;
 import org.folio.ed.domain.dto.AccessionQueueRecord;
 import org.folio.ed.domain.dto.Configuration;
@@ -18,7 +17,6 @@ import org.folio.rs.domain.dto.AsrItem;
 import org.folio.rs.domain.dto.AsrItems;
 import org.folio.rs.domain.dto.AsrRequest;
 import org.folio.rs.domain.dto.AsrRequests;
-import org.folio.spring.scope.FolioExecutionScopeExecutionContextManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -35,24 +33,15 @@ public class RemoteStorageService {
   private final SystemParametersHolder systemParametersHolder;
 
   public List<AccessionQueueRecord> getAccessionQueueRecords(String storageId) {
-    var systemUserParameters = securityManagerService.getSystemUserParameters(systemParametersHolder.getTenantId());
-    FolioExecutionScopeExecutionContextManager
-      .beginFolioExecutionContext(new AsyncFolioExecutionContext(systemUserParameters, null));
     return remoteStorageClient.getAccessionsByQuery(buildQueryByStorageId(storageId))
       .getResult();
   }
 
   public void setAccessionedByBarcode(String barcode) {
-    var systemUserParameters = securityManagerService.getSystemUserParameters(systemParametersHolder.getTenantId());
-    FolioExecutionScopeExecutionContextManager
-      .beginFolioExecutionContext(new AsyncFolioExecutionContext(systemUserParameters, null));
     remoteStorageClient.setAccessionedByBarcode(barcode);
   }
 
   public List<Configuration> getStagingDirectorConfigurations() {
-    var systemUserParameters = securityManagerService.getSystemUserParameters(systemParametersHolder.getTenantId());
-    FolioExecutionScopeExecutionContextManager
-      .beginFolioExecutionContext(new AsyncFolioExecutionContext(systemUserParameters, null));
     return remoteStorageClient.getStorageConfigurations()
       .getConfigurations()
       .stream()
