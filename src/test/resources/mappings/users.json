@@ -3,8 +3,13 @@
     {
       "request": {
         "method": "GET",
-        "url": "/users?query=username==system-user"
-      },
+        "url": "/users?query=username==system-user",
+        "headers" : {
+          "x-okapi-tenant": {
+            "equalTo": "test_tenant"
+          }
+        }
+    },
       "response": {
         "status": 200,
         "body": "{\n    \"users\": [],\n    \"totalRecords\": 0,\n    \"resultInfo\": {\n        \"totalRecords\": 0,\n        \"facets\": [],\n        \"diagnostics\": []\n    }\n}",
@@ -16,7 +21,12 @@
     {
       "request": {
         "method": "GET",
-        "url": "/users?query=username==existed_user"
+        "url": "/users?query=username==existed_user",
+        "headers" : {
+          "x-okapi-tenant": {
+            "equalTo": "test_tenant"
+          }
+        }
       },
       "response": {
         "status": 200,

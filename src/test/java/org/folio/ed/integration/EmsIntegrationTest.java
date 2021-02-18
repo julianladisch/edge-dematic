@@ -38,7 +38,7 @@ public class EmsIntegrationTest extends TestBase {
 
   private static final String LOOKUP_NEW_ASR_ITEM = "http://localhost:%s/asrService/asr/lookupNewAsrItems";
   private static final String LOOKUP_ASR_REQUESTS = "http://localhost:%s/asrService/asr/lookupAsrRequests";
-  private static final String UPDATE_ASR_STATUS_AVAILABLE = "http://localhost:%s/asrService/asr/updateAsrItemStatusAvailable";
+  private static final String UPDATE_ASR_STATUS_AVAILABLE = "http://localhost:%s/asrService/asr/updateASRItemStatusBeingRetrieved";
 
   private String lookupNewAsrItem, lookupAsrRequests, updateAsrStatusAvailable;
 

@@ -45,7 +45,7 @@ paths:
       operationId: getAsrRequests
       parameters:
         - $ref: "#/components/parameters/storage_id"
-  /updateAsrItemStatusAvailable/{remoteStorageConfigurationId}:
+  /updateASRItemStatusBeingRetrieved/{remoteStorageConfigurationId}:
     post:
       requestBody:
         content:
