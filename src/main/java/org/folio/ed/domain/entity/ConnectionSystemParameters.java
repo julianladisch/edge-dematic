@@ -9,17 +9,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.With;
+import org.springframework.stereotype.Component;
 
 @Data
-@Entity
+@Component
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SystemUserParameters {
-
-  @Id
-  @JsonIgnore
-  private UUID id;
+@With
+public class ConnectionSystemParameters {
 
   private String username;
 
@@ -27,9 +26,6 @@ public class SystemUserParameters {
 
   @JsonIgnore
   private String okapiToken;
-
-  @JsonIgnore
-  private String okapiUrl;
 
   @JsonIgnore
   private String tenantId;

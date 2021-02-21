@@ -3,7 +3,12 @@
     {
       "request": {
         "method": "POST",
-        "url": "/authn/login"
+        "url": "/authn/login",
+        "headers" : {
+          "x-okapi-tenant": {
+            "equalTo": "test_tenant"
+          }
+        }
       },
       "response": {
         "status": 200,

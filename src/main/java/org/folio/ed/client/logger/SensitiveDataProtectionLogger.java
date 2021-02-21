@@ -15,10 +15,14 @@ import feign.Logger;
 import feign.Request;
 import feign.Response;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 
 @Slf4j
 public class SensitiveDataProtectionLogger extends Logger {
   private static final int TOKEN_VISIBLE_CHARACTERS_NUMBER = 5;
+
+  @Value("${okapi_url}")
+  private String okapiUrl;
 
   @Override
   protected void logRequest(String configKey, Level logLevel, Request request) {
@@ -44,7 +48,7 @@ public class SensitiveDataProtectionLogger extends Logger {
   }
 
   private Request getSensitiveDataProtectedRequest(Request request) {
-    return Request.create(request.httpMethod(), request.url(), maskOkapiTokenInHeaders(request.headers()), request.requestBody());
+    return Request.create(request.httpMethod(), request.url().replace("http://", okapiUrl), maskOkapiTokenInHeaders(request.headers()), request.requestBody());
   }
 
   private Response getSensitiveDataProtectedResponse(Response response) {

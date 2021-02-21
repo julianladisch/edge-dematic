@@ -5,7 +5,6 @@ import static org.folio.ed.util.StagingDirectorConfigurationsHelper.resolvePolli
 import static org.folio.ed.util.StagingDirectorConfigurationsHelper.resolvePort;
 
 import lombok.RequiredArgsConstructor;
-import org.folio.ed.domain.SystemParametersHolder;
 import org.folio.ed.domain.dto.Configuration;
 import org.folio.ed.handler.ResponseHandler;
 import org.folio.ed.handler.StatusMessageHandler;
@@ -23,20 +22,25 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class StagingDirectorFlowsService {
+
   @Value("${primary.channel.heartbeat.timeframe}")
   private long heartbeatTimeframe;
 
   private final IntegrationFlowContext integrationFlowContext;
   private final RemoteStorageService remoteStorageService;
-  private final SecurityManagerService securityManagerService;
-  private final SystemParametersHolder systemParametersHolder;
   private final StatusMessageHandler statusMessageHandler;
   private final ResponseHandler responseHandler;
+  private final SecurityManagerService sms;
 
   @Scheduled(fixedDelayString = "${configurations.update.timeframe}")
   public void updateIntegrationFlows() {
     removeExistingFlows();
-    remoteStorageService.getStagingDirectorConfigurations().forEach(this::createFlows);
+    var tenantsUsersMap = sms.getStagingDirectorTenantsUsers();
+    for (String tenantId : tenantsUsersMap.keySet()) {
+      for (Configuration configuration : remoteStorageService.getStagingDirectorConfigurations(tenantId, sms.getStagingDirectorConnectionParameters(tenantId).getOkapiToken())) {
+        createFlows(configuration);
+      }
+    }
   }
 
   private void createFlows(Configuration configuration) {
@@ -53,17 +57,20 @@ public class StagingDirectorFlowsService {
     });
   }
 
-  public IntegrationFlowContext.IntegrationFlowRegistration registerPrimaryChannelOutboundGateway(Configuration configuration) {
+  public IntegrationFlowContext.IntegrationFlowRegistration registerPrimaryChannelOutboundGateway(
+    Configuration configuration) {
     return integrationFlowContext
       .registration(IntegrationFlows
         .from(MessageChannels.publishSubscribe(configuration.getName()))
-        .handle(Tcp.outboundGateway(Tcp.netClient(resolveAddress(configuration.getUrl()), resolvePort(configuration.getUrl()))))
+        .handle(Tcp.outboundGateway(Tcp
+          .netClient(resolveAddress(configuration.getUrl()), resolvePort(configuration.getUrl()))))
         .handle(String.class, responseHandler)
         .get())
       .register();
   }
 
-  public IntegrationFlowContext.IntegrationFlowRegistration registerPrimaryChannelHeartbeatPoller(Configuration configuration) {
+  public IntegrationFlowContext.IntegrationFlowRegistration registerPrimaryChannelHeartbeatPoller(
+    Configuration configuration) {
     return integrationFlowContext
       .registration(IntegrationFlows
         .from(StagingDirectorMessageHelper::buildHeartbeatMessage,
@@ -73,11 +80,18 @@ public class StagingDirectorFlowsService {
       .register();
   }
 
-  public IntegrationFlowContext.IntegrationFlowRegistration registerPrimaryChannelAccessionPoller(Configuration configuration) {
+  public IntegrationFlowContext.IntegrationFlowRegistration registerPrimaryChannelAccessionPoller(
+    Configuration configuration) {
     return integrationFlowContext
       .registration(IntegrationFlows
-        .from(() -> remoteStorageService.getAccessionQueueRecords(configuration.getId()),
-          p -> p.poller(Pollers.fixedDelay(resolvePollingTimeFrame(configuration.getAccessionDelay(), configuration.getAccessionTimeUnit()))))
+        .from(() -> {
+            var connectionSystemParameters = sms.getStagingDirectorConnectionParameters(configuration.getTenantId());
+            return remoteStorageService
+              .getAccessionQueueRecords(configuration.getId(), connectionSystemParameters.getTenantId(), connectionSystemParameters.getOkapiToken());
+          },
+          p -> p.poller(Pollers.fixedDelay(
+            resolvePollingTimeFrame(configuration.getAccessionDelay(),
+              configuration.getAccessionTimeUnit()))))
         .split()
         .transform(StagingDirectorMessageHelper::buildInventoryAddMessage)
         .channel(configuration.getName())
@@ -85,14 +99,16 @@ public class StagingDirectorFlowsService {
       .register();
   }
 
-  public IntegrationFlowContext.IntegrationFlowRegistration registerStatusChannelFlow(Configuration configuration) {
+  public IntegrationFlowContext.IntegrationFlowRegistration registerStatusChannelFlow(
+    Configuration configuration) {
     TcpClientConnectionFactorySpec statusChannelFactory =
-      Tcp.netClient(resolveAddress(configuration.getStatusUrl()), resolvePort(configuration.getStatusUrl()))
+      Tcp.netClient(resolveAddress(configuration.getStatusUrl()),
+        resolvePort(configuration.getStatusUrl()))
         .singleUseConnections(false);
     return integrationFlowContext
       .registration(IntegrationFlows
         .from(Tcp.inboundGateway(statusChannelFactory).clientMode(true))
-        .handle(String.class, statusMessageHandler)
+        .handle(String.class, statusMessageHandler.withConfiguration(configuration))
         .get())
       .register();
   }
