@@ -1,9 +1,6 @@
 package org.folio.ed.service;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.folio.ed.client.RemoteStorageClient;
@@ -11,11 +8,8 @@ import org.folio.ed.converter.AccessionQueueRecordToAsrItemConverter;
 import org.folio.ed.converter.RetrievalQueueRecordToAsrRequestConverter;
 import org.folio.ed.domain.dto.AccessionQueueRecord;
 import org.folio.ed.domain.dto.Configuration;
-import org.folio.ed.domain.dto.RetrievalQueueRecord;
 import org.folio.ed.domain.request.ItemBarcodeRequest;
-import org.folio.rs.domain.dto.AsrItem;
 import org.folio.rs.domain.dto.AsrItems;
-import org.folio.rs.domain.dto.AsrRequest;
 import org.folio.rs.domain.dto.AsrRequests;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -51,8 +45,7 @@ public class RemoteStorageService {
 
   public AsrItems getAsrItems(String storageId) {
     var asrItems = new AsrItems();
-    asrItems.asrItems(getAccessionQueueRecords(storageId)
-      .stream()
+    asrItems.asrItems(getAccessionQueueRecords(storageId).stream()
       .map(accessionQueueRecordToAsrItemConverter::convert)
       .collect(Collectors.toList()));
     return asrItems;
@@ -66,11 +59,12 @@ public class RemoteStorageService {
 
   public AsrRequests getRequests(String remoteStorageConfigurationId) {
     var asrRequests = new AsrRequests();
-    asrRequests.asrRequests(remoteStorageClient.getRetrievalsByQuery("storageId=" + remoteStorageConfigurationId + "&retrieved=false")
-      .getResult()
-      .stream()
-      .map(retrievalQueueRecordToAsrRequestConverter::convert)
-      .collect(Collectors.toList()));
+    asrRequests
+      .asrRequests(remoteStorageClient.getRetrievalsByQuery("storageId=" + remoteStorageConfigurationId + "&retrieved=false")
+        .getResult()
+        .stream()
+        .map(retrievalQueueRecordToAsrRequestConverter::convert)
+        .collect(Collectors.toList()));
     return asrRequests;
   }
 
