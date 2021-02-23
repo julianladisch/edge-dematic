@@ -10,8 +10,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThrows;
 import static org.springframework.http.MediaType.APPLICATION_XML;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -25,10 +23,13 @@ import org.folio.rs.domain.dto.AsrRequests;
 import org.folio.rs.domain.dto.UpdateAsrItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import org.springframework.web.client.HttpServerErrorException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 import lombok.extern.log4j.Log4j2;
@@ -42,6 +43,9 @@ public class EmsIntegrationTest extends TestBase {
 
   private String lookupNewAsrItem, lookupAsrRequests, updateAsrStatusAvailable;
 
+  @Autowired
+  private MappingJackson2XmlHttpMessageConverter converter;
+
   @BeforeEach
   void prepareUrl() {
     lookupNewAsrItem = String.format(LOOKUP_NEW_ASR_ITEM, okapiPort);
@@ -50,18 +54,19 @@ public class EmsIntegrationTest extends TestBase {
   }
 
   @Test
-  void getNewAsrItemsTest() {
+  void getNewAsrItemsTest() throws JsonProcessingException {
     log.info("===== Get items: successful =====");
 
-    ResponseEntity<AsrItems> response = get(lookupNewAsrItem + "/de17bad7-2a30-4f1c-bee5-f653ded15629", AsrItems.class);
+    ResponseEntity<String> response = get(lookupNewAsrItem + "/de17bad7-2a30-4f1c-bee5-f653ded15629", String.class);
 
     assertThat(response.getBody(), notNullValue());
     assertThat(response.getStatusCode(), is(HttpStatus.OK));
     assertThat(response.getHeaders()
       .getContentType(), is(APPLICATION_XML));
 
-    List<AsrItem> asrItems = response.getBody()
-      .getAsrItems();
+    log.info("Response: " + response.getBody());
+
+    List<AsrItem> asrItems = converter.getObjectMapper().readValue(response.getBody(), AsrItems.class).getAsrItems();
     assertThat(asrItems, hasSize(1));
 
     var asrItem = asrItems.get(0);
@@ -96,18 +101,19 @@ public class EmsIntegrationTest extends TestBase {
   }
 
   @Test
-  void getAsrRequestsTest() {
+  void getAsrRequestsTest() throws JsonProcessingException {
     log.info("===== Get requests: successful =====");
 
-    ResponseEntity<AsrRequests> response = get(lookupAsrRequests + "/de17bad7-2a30-4f1c-bee5-f653ded15629", AsrRequests.class);
+    ResponseEntity<String> response = get(lookupAsrRequests + "/de17bad7-2a30-4f1c-bee5-f653ded15629", String.class);
 
     assertThat(response.getBody(), notNullValue());
     assertThat(response.getStatusCode(), is(HttpStatus.OK));
     assertThat(response.getHeaders()
       .getContentType(), is(APPLICATION_XML));
 
-    List<AsrRequest> asrRequests = response.getBody()
-      .getAsrRequests();
+    log.info("Response: " + response.getBody());
+
+    List<AsrRequest> asrRequests = converter.getObjectMapper().readValue(response.getBody(), AsrRequests.class).getAsrRequests();
     assertThat(asrRequests, hasSize(1));
 
     var asrRequest = asrRequests.get(0);
@@ -123,7 +129,7 @@ public class EmsIntegrationTest extends TestBase {
     assertThat(asrRequest.getPickupLocation(), is("pickup_location"));
     assertThat(asrRequest.getRequestStatus(), is("Request-Status"));
     assertThat(asrRequest.getRequestNote(), is("Request_Note"));
-    assertThat(asrRequest.getRequestDate(), is(Timestamp.valueOf(LocalDateTime.parse("2021-02-03T06:31:35.550"))));
+    assertThat(asrRequest.getRequestDate(), is("2021-02-21 17:29:09.0"));
 
     // Verify set retrieval by barcode
     Map<String, ServeEvent> requests = wireMockServer.getAllServeEvents()
