@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -29,6 +30,8 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import lombok.extern.log4j.Log4j2;
+
+import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource("classpath:application-test.yml")
@@ -105,5 +108,9 @@ public class TestBase {
 
   public ResponseEntity<String> delete(String url) {
     return restTemplate.exchange(url, HttpMethod.DELETE, new HttpEntity<>(headers), String.class);
+  }
+
+  public <T> List<T> getAsList(String url, ParameterizedTypeReference<List<T>> responseType) {
+    return restTemplate.exchange(url, HttpMethod.GET, null, responseType).getBody();
   }
 }

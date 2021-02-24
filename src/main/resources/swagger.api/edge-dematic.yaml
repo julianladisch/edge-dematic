@@ -81,14 +81,9 @@ components:
             wrapped: true
       xml:
         name: asrItems
-        wrapped: true
     asrItem:
       type: object
       properties:
-        id:
-          type: integer
-          xml:
-            attribute: true
         author:
           type: string
         title:
@@ -97,8 +92,6 @@ components:
           type: string
         callNumber:
           type: string
-      xml:
-        name: asrItem
     asrRequests:
       type: object
       properties:
@@ -110,8 +103,7 @@ components:
             name: asrRequest
             wrapped: true
       xml:
-        name: asrRequest
-        wrapped: true
+        name: asrRequests
     asrRequest:
       type: object
       properties:
@@ -131,7 +123,6 @@ components:
           type: string
         requestDate:
           type: string
-          format: date-time
         pickupLocation:
           type: string
         requestStatus:
