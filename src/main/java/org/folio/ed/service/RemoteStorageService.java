@@ -1,5 +1,6 @@
 package org.folio.ed.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,61 +21,70 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class RemoteStorageService {
+
   private static final String STAGING_DIRECTOR_NAME = "Dematic_SD";
 
   private final RemoteStorageClient remoteStorageClient;
   private final AccessionQueueRecordToAsrItemConverter accessionQueueRecordToAsrItemConverter;
   private final RetrievalQueueRecordToAsrRequestConverter retrievalQueueRecordToAsrRequestConverter;
 
-  public List<AccessionQueueRecord> getAccessionQueueRecords(String storageId) {
-    return remoteStorageClient.getAccessionsByQuery("storageId=" + storageId + "&accessioned=false")
+  public List<AccessionQueueRecord> getAccessionQueueRecords(String storageId, String tenantId, String okapiToken) {
+    return remoteStorageClient.getAccessionsByQuery("storageId=" + storageId + "&accessioned=false", tenantId, okapiToken)
       .getResult();
   }
 
-  public void setAccessionedByBarcode(String barcode) {
-    remoteStorageClient.setAccessionedByBarcode(barcode);
+  public void setAccessionedByBarcode(String barcode, String tenantId, String okapiToken) {
+    remoteStorageClient.setAccessionedByBarcode(barcode, tenantId, okapiToken);
   }
 
-  public List<Configuration> getStagingDirectorConfigurations() {
-    return remoteStorageClient.getStorageConfigurations()
+  public List<Configuration> getStagingDirectorConfigurations(String tenantId, String okapiToken) {
+
+    List<Configuration> stagingDirectorConfigurations = new ArrayList<>();
+    remoteStorageClient.getStorageConfigurations(tenantId, okapiToken)
       .getConfigurations()
-      .stream()
-      .filter(configuration -> STAGING_DIRECTOR_NAME.equals(configuration.getProviderName()))
-      .collect(Collectors.toList());
+      .forEach(configuration -> {
+        configuration.setTenantId(tenantId);
+        if (STAGING_DIRECTOR_NAME.equals(configuration.getProviderName())) {
+          stagingDirectorConfigurations.add(configuration);
+        }
+      });
+    return stagingDirectorConfigurations;
   }
 
-  public AsrItems getAsrItems(String storageId) {
+  public AsrItems getAsrItems(String storageId, String tenantId, String okapiToken) {
     var asrItems = new AsrItems();
-    asrItems.asrItems(getAccessionQueueRecords(storageId).stream()
+    asrItems.asrItems(getAccessionQueueRecords(storageId, tenantId, okapiToken).stream()
       .map(accessionQueueRecordToAsrItemConverter::convert)
       .collect(Collectors.toList()));
     return asrItems;
   }
 
-  public ResponseEntity<String> checkInItemByBarcode(String remoteStorageConfigurationId, String itemBarcode) {
+  public ResponseEntity<String> checkInItemByBarcode(String remoteStorageConfigurationId, String itemBarcode, String tenantId,
+      String okapiToken) {
     var itemBarcodeRequest = new ItemBarcodeRequest();
     itemBarcodeRequest.setItemBarcode(itemBarcode);
-    return remoteStorageClient.checkInItem(remoteStorageConfigurationId, itemBarcodeRequest);
+    return remoteStorageClient.checkInItem(remoteStorageConfigurationId, itemBarcodeRequest, tenantId, okapiToken);
   }
 
-  public AsrRequests getRequests(String remoteStorageConfigurationId) {
+  public AsrRequests getRequests(String remoteStorageConfigurationId, String tenantId, String okapiToken) {
     var asrRequests = new AsrRequests();
-    asrRequests
-      .asrRequests(remoteStorageClient.getRetrievalsByQuery("storageId=" + remoteStorageConfigurationId + "&retrieved=false")
-        .getResult()
-        .stream()
-        .map(retrievalQueueRecordToAsrRequestConverter::convert)
-        .collect(Collectors.toList()));
+    asrRequests.asrRequests(remoteStorageClient
+      .getRetrievalsByQuery("storageId=" + remoteStorageConfigurationId + "&retrieved=false", tenantId, okapiToken)
+      .getResult()
+      .stream()
+      .map(retrievalQueueRecordToAsrRequestConverter::convert)
+      .collect(Collectors.toList()));
     return asrRequests;
   }
 
   @Async
-  public ResponseEntity<String> setAccessionedAsync(String itemBarcode) {
-    return remoteStorageClient.setAccessionedByBarcode(itemBarcode);
+  public ResponseEntity<String> setAccessionedAsync(String itemBarcode, String tenantId, String okapiToken) {
+    return remoteStorageClient.setAccessionedByBarcode(itemBarcode, tenantId, okapiToken);
   }
 
   @Async
-  public ResponseEntity<String> setRetrievedAsync(String itemBarcode) {
-    return remoteStorageClient.setRetrievalByBarcode(itemBarcode);
+  public ResponseEntity<String> setRetrievedAsync(String itemBarcode, String tenantId, String okapiToken) {
+    return remoteStorageClient.setRetrievalByBarcode(itemBarcode, tenantId, okapiToken);
   }
+
 }

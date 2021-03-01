@@ -3,6 +3,10 @@
   "name": "Edge Dematic API",
   "requires": [
     {
+      "id": "login",
+      "version": "7.0"
+    },
+    {
       "id": "remote-storage-configurations",
       "version": "1.0"
     },
@@ -19,83 +23,21 @@
       "version": "1.0"
     }
   ],
-  "provides": [
-    {
-      "id": "asrService",
-      "version": "1.0",
-      "handlers": [
-        {
-          "methods": ["GET"],
-          "pathPattern": "/asrService/asr/lookupNewAsrItems/{remoteStorageConfigurationId}",
-          "permissionsRequired" : [],
-          "modulePermissions": [
-            "remote-storage.accessions.collection.get",
-            "remote-storage.accessions.item.put"
-          ]
-        },
-        {
-          "methods": ["GET"],
-          "pathPattern": "/asrService/asr/lookupAsrRequests/{remoteStorageConfigurationId}",
-          "permissionsRequired" : [],
-          "modulePermissions": [
-            "remote-storage.retrievals.collection.get",
-            "remote-storage.retrievals.item.put"
-          ]
-        },
-        {
-          "methods": ["POST"],
-          "pathPattern": "/asrService/asr/updateASRItemStatusBeingRetrieved/{remoteStorageConfigurationId}",
-          "permissionsRequired" : [],
-          "modulePermissions": [
-            "remote-storage.check-in.item.post"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "_tenant",
-      "version": "1.2",
-      "interfaceType": "system",
-      "handlers": [
-        {
-          "methods": ["POST"],
-          "pathPattern": "/_/tenant",
-          "modulePermissions": [
-            "users.collection.get",
-            "users.item.post",
-            "users.item.put",
-            "login.item.post",
-            "perms.users.item.post"
-          ]
-        }, {
-          "methods": ["DELETE"],
-          "pathPattern": "/_/tenant"
-        }
-      ]
-    }
-  ],
+  "provides": [],
   "permissionSets": [],
   "launchDescriptor": {
-    "dockerImage": "@artifactId@:@version@",
+    "dockerImage": "${artifactId}:${version}",
     "dockerPull": false,
     "dockerArgs": {
       "HostConfig": {
-        "Memory": 357913941,
+        "Memory": 268435456,
         "PortBindings": { "8081/tcp": [ { "HostPort": "%p" } ] }
       }
     },
     "env": [
       { "name": "JAVA_OPTIONS",
-        "value": "-XX:MaxRAMPercentage=66.0"
-      },
-      { "name": "DB_HOST", "value": "postgres" },
-      { "name": "DB_PORT", "value": "5432" },
-      { "name": "DB_USERNAME", "value": "folio_admin" },
-      { "name": "DB_PASSWORD", "value": "folio_admin" },
-      { "name": "DB_DATABASE", "value": "okapi_modules" },
-      { "name": "DB_QUERYTIMEOUT", "value": "60000" },
-      { "name": "DB_CHARSET", "value": "UTF-8" },
-      { "name": "DB_MAXPOOLSIZE", "value": "5" }
+        "value": "-XX:MaxRAMPercentage=66.0 -Drequest_timeout_ms=7200000"
+      }
     ]
   }
 }

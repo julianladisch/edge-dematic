@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import io.swagger.annotations.ApiParam;
@@ -25,17 +26,19 @@ public class LookupAsrRequestsController implements LookupAsrRequestsApi {
 
   @Override
   public ResponseEntity<AsrRequests> getAsrRequests(
-      @ApiParam(required = true) @PathVariable("remoteStorageConfigurationId") String remoteStorageConfigurationId) {
+      @ApiParam(required = true) @PathVariable("remoteStorageConfigurationId") String remoteStorageConfigurationId,
+      @ApiParam(required = true) @RequestHeader(value = "x-okapi-token") String xOkapiToken,
+      @ApiParam(required = true) @RequestHeader(value = "x-okapi-tenant") String xOkapiTenant) {
 
     var headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_XML);
 
-    var asrRequests = remoteStorageService.getRequests(remoteStorageConfigurationId);
+    var asrRequests = remoteStorageService.getRequests(remoteStorageConfigurationId, xOkapiTenant, xOkapiToken);
     try {
       return new ResponseEntity<>(asrRequests, headers, HttpStatus.OK);
     } finally {
       asrRequests.getAsrRequests()
-        .forEach(asrRequest -> remoteStorageService.setRetrievedAsync(asrRequest.getItemBarcode()));
+        .forEach(asrRequest -> remoteStorageService.setRetrievedAsync(asrRequest.getItemBarcode(), xOkapiTenant, xOkapiToken));
     }
   }
 }

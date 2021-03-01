@@ -8,4 +8,4 @@ map:
     eviction:
       eviction-policy: LFU
       max-size-policy: FREE_HEAP_PERCENTAGE
-      size: 40
+      size: 100

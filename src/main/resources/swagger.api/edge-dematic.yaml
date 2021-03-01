@@ -25,6 +25,8 @@ paths:
       operationId: getAsrItems
       parameters:
         - $ref: "#/components/parameters/storage_id"
+        - $ref: "#/components/parameters/x-okapi-token"
+        - $ref: "#/components/parameters/x-okapi-tenant"
   /lookupAsrRequests/{remoteStorageConfigurationId}:
     get:
       responses:
@@ -45,6 +47,8 @@ paths:
       operationId: getAsrRequests
       parameters:
         - $ref: "#/components/parameters/storage_id"
+        - $ref: "#/components/parameters/x-okapi-token"
+        - $ref: "#/components/parameters/x-okapi-tenant"
   /updateASRItemStatusBeingRetrieved/{remoteStorageConfigurationId}:
     post:
       requestBody:
@@ -67,6 +71,8 @@ paths:
       operationId: updateAsrItem
       parameters:
         - $ref: "#/components/parameters/storage_id"
+        - $ref: "#/components/parameters/x-okapi-token"
+        - $ref: "#/components/parameters/x-okapi-tenant"
 components:
   schemas:
     asrItems:
@@ -142,6 +148,18 @@ components:
     storage_id:
       name: remoteStorageConfigurationId
       in: path
+      required: true
+      schema:
+        type: string
+    x-okapi-token:
+      name: x-okapi-token
+      in: header
+      required: true
+      schema:
+        type: string
+    x-okapi-tenant:
+      name: x-okapi-tenant
+      in: header
       required: true
       schema:
         type: string

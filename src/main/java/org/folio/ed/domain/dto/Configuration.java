@@ -1,5 +1,7 @@
 package org.folio.ed.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
 
 @Data
@@ -11,4 +13,7 @@ public class Configuration {
   private String statusUrl;
   private Integer accessionDelay;
   private String accessionTimeUnit;
+
+  @JsonIgnore
+  private String tenantId;
 }

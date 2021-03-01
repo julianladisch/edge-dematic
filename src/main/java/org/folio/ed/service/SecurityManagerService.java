@@ -1,204 +1,159 @@
 package org.folio.ed.service;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.springframework.util.CollectionUtils.isEmpty;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toMap;
+import static org.folio.ed.util.Constants.COMMA;
+import static org.folio.edge.core.Constants.DEFAULT_SECURE_STORE_TYPE;
+import static org.folio.edge.core.Constants.PROP_SECURE_STORE_TYPE;
+import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
 
-import com.google.common.io.Resources;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.Properties;
+import java.util.Set;
+import java.util.regex.Pattern;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import javax.annotation.PostConstruct;
+
 import org.folio.ed.client.AuthnClient;
-import org.folio.ed.client.PermissionsClient;
-import org.folio.ed.client.UsersClient;
-import org.folio.ed.domain.dto.Permission;
-import org.folio.ed.domain.dto.Permissions;
-import org.folio.ed.domain.dto.User;
-import org.folio.ed.domain.entity.SystemUserParameters;
-import org.folio.ed.repository.SystemUserParametersRepository;
-import org.folio.spring.FolioModuleMetadata;
-import org.folio.spring.integration.XOkapiHeaders;
-import org.springframework.cache.annotation.CachePut;
+import org.folio.ed.domain.entity.ConnectionSystemParameters;
+import org.folio.ed.error.AuthorizationException;
+import org.folio.ed.security.SecureStoreFactory;
+import org.folio.ed.security.TenantAwareAWSParamStore;
+import org.folio.edge.core.model.ClientInfo;
+import org.folio.edge.core.security.AwsParamStore;
+import org.folio.edge.core.security.SecureStore;
+import org.folio.edge.core.security.SecureStore.NotFoundException;
+import org.folio.edge.core.utils.ApiKeyUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
+import lombok.extern.log4j.Log4j2;
 
 @Component
 @Log4j2
-@AllArgsConstructor
 public class SecurityManagerService {
 
-  private static final String PERMISSIONS_FILE_PATH = "permissions/system-user-permissions.csv";
-  private static final String USER_LAST_NAME = "System";
+  public static final String STAGING_DIRECTOR_CLIENT_NAME = "stagingDirector";
+  public static final String SYSTEM_USER_PARAMETERS_CACHE = "systemUserParameters";
 
-  private final PermissionsClient permissionsClient;
-  private final UsersClient usersClient;
-  private final AuthnClient authnClient;
-  private final SystemUserParametersRepository systemUserParametersRepository;
-  @PersistenceContext
-  private final EntityManager em;
+  @Value("${secure_store}")
+  private String secureStoreType;
 
-  private final FolioModuleMetadata moduleMetadata;
+  @Value("${secure_store_props}")
+  private String secureStorePropsFile;
 
-  public void prepareSystemUser(String username, String password, String okapiUrl, String tenantId) {
+  @Autowired
+  private AuthnClient authnClient;
 
-    var systemUserParameters = systemUserParametersRepository.getFirstByTenantId(tenantId)
-      .orElse(buildDefaultSystemUserParameters(username, password, okapiUrl, tenantId));
+  private static final Pattern isURL = Pattern.compile("(?i)^http[s]?://.*");
 
-    var folioUser = getFolioUser(username);
+  private SecureStore secureStore;
 
-    if (folioUser.isPresent()) {
-      updateUser(folioUser.get());
-      addPermissions(folioUser.get().getId());
-    } else {
-      var userId = createFolioUser(username);
-      saveCredentials(systemUserParameters);
-      assignPermissions(userId);
-    }
+  private Map<String, String> tenantsUsersMap = new HashMap<>();
 
-    var backgroundUserApiKey = loginSystemUser(systemUserParameters);
-    systemUserParameters.setOkapiToken(backgroundUserApiKey);
-    saveSystemUserParameters(systemUserParameters);
-  }
+  @PostConstruct
+  public void init() {
 
-  private String loginSystemUser(SystemUserParameters params) {
-    var response = authnClient.getApiKey(params);
-    var headers = response.getHeaders().get(XOkapiHeaders.TOKEN);
-    if (CollectionUtils.isEmpty(headers)) {
-      throw new IllegalStateException(String.format("User [%s] cannot log in", params.getUsername()));
-    } else {
-      return headers.get(0);
-    }
-  }
+    Properties secureStoreProps = getProperties(secureStorePropsFile);
+    String type = secureStoreProps.getProperty(PROP_SECURE_STORE_TYPE, DEFAULT_SECURE_STORE_TYPE);
 
-  private SystemUserParameters buildDefaultSystemUserParameters(String username, String password, String okapiUrl, String tenantId) {
-    return SystemUserParameters.builder()
-      .id(UUID.randomUUID())
-      .username(username)
-      .password(password)
-      .okapiUrl(okapiUrl)
-      .tenantId(tenantId).build();
-  }
+    String tenantsStr;
 
-  @CachePut(value = "systemUserParameters", key="#systemUserParams.tenantId")
-  public void saveSystemUserParameters(SystemUserParameters systemUserParams) {
-    systemUserParametersRepository.save(systemUserParams);
-  }
+    secureStore = SecureStoreFactory.getSecureStore(type, secureStoreProps);
 
-  @Cacheable(value = "systemUserParameters", key="#tenantId")
-  public SystemUserParameters getSystemUserParameters(String tenantId) {
-    final String sqlQuery = "SELECT * FROM " + moduleMetadata.getDBSchemaName(tenantId) + ".system_user_parameters";
-    var query = em.createNativeQuery(sqlQuery, SystemUserParameters.class); //NOSONAR
-    return (SystemUserParameters) query.getSingleResult();
-  }
-
-  private Optional<User> getFolioUser(String username) {
-    var query = "username==" + username;
-    var results = usersClient.query(query);
-    return results.getResult().stream().findFirst();
-  }
-
-  private String createFolioUser(String username) {
-    final var user = createUserObject(username);
-    final var id = user.getId();
-    usersClient.saveUser(user);
-    return id;
-  }
-
-  private void updateUser(User existingUser) {
-    log.info("Have to update  user [{}]", existingUser.getUsername());
-    if (existingUserUpToDate(existingUser)) {
-      log.info("The user [{}] is up to date", existingUser.getUsername());
-    }
-    usersClient.updateUser(existingUser.getId(), populateMissingUserProperties(existingUser));
-    log.info("Update the user [{}]", existingUser.getId());
-  }
-
-  private void saveCredentials(SystemUserParameters systemUserParameters) {
-
-    authnClient.saveCredentials(systemUserParameters);
-
-    log.info("Saved credentials for user: [{}]", systemUserParameters.getUsername());
-  }
-
-  private void assignPermissions(String userId) {
-    List<String> perms = readPermissionsFromResource(PERMISSIONS_FILE_PATH);
-
-    if (isEmpty(perms)) {
-      throw new IllegalStateException("No permissions found to assign to user with id: " + userId);
-    }
-
-    var permissions = Permissions.of(UUID.randomUUID()
-      .toString(), userId, perms);
-
-    permissionsClient.assignPermissionsToUser(permissions);
-  }
-
-  private void addPermissions(String userId) {
-    var permissions = readPermissionsFromResource(PERMISSIONS_FILE_PATH);
-
-    if (isEmpty(permissions)) {
-      throw new IllegalStateException("No permissions found to assign to user with id: " + userId);
-    }
-
-    permissions.forEach(permission -> {
-      var p = new Permission();
-      p.setPermissionName(permission);
-      try {
-        permissionsClient.addPermission(userId, p);
-      } catch (Exception e) {
-        log.info("Error adding permission {} to System User. Permission may be already assigned.", permission);
+    if (AwsParamStore.TYPE.equals(type)) {
+      final Optional<String> stringOptional = ((TenantAwareAWSParamStore) secureStore).getTenants();
+      if (stringOptional.isEmpty()) {
+        log.warn("Tenants list not found in AWS Param store. Please create variable, which contains comma separated list of tenants");
+        return;
       }
-    });
-  }
-
-  private List<String> readPermissionsFromResource(String path) {
-    List<String> permissions = new ArrayList<>();
-    var url = Resources.getResource(path);
-
-    try {
-      permissions = Resources.readLines(url, StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      log.error("Error reading permissions from {}", path);
+      tenantsStr = stringOptional.get();
+    } else {
+      tenantsStr = (String) secureStoreProps.get("tenants");
     }
 
-    return permissions;
+    tenantsUsersMap = Arrays.stream(COMMA.split(tenantsStr))
+      .collect(toMap(tenant -> tenant, tenant -> COMMA
+        .split(secureStoreProps.getProperty(tenant))[0]));
   }
 
-  private User createUserObject(String username) {
-    final var user = new User();
-
-    user.setId(UUID.randomUUID()
-      .toString());
-    user.setActive(true);
-    user.setUsername(username);
-
-    user.setPersonal(new User.Personal());
-    user.getPersonal()
-      .setLastName(USER_LAST_NAME);
-
-    return user;
+  @Cacheable(value = SYSTEM_USER_PARAMETERS_CACHE, key = "#tenantId")
+  public ConnectionSystemParameters getStagingDirectorConnectionParameters(String tenantId) {
+    return enrichConnectionSystemParametersWithOkapiToken(tenantId, tenantsUsersMap.get(tenantId));
   }
 
-  private boolean existingUserUpToDate(User existingUser) {
-    return existingUser.getPersonal() != null && isNotBlank(existingUser.getPersonal()
-      .getLastName());
+  @Cacheable(value = SYSTEM_USER_PARAMETERS_CACHE, key = "#edgeApiKey")
+  public ConnectionSystemParameters getOkapiConnectionParameters(String edgeApiKey) {
+
+    String tenantId;
+    String username;
+    try {
+      ClientInfo clientInfo = ApiKeyUtils.parseApiKey(edgeApiKey);
+      tenantId = clientInfo.tenantId;
+      username = clientInfo.username;
+    } catch (ApiKeyUtils.MalformedApiKeyException e) {
+      throw new AuthorizationException("Malformed edge api key: " + edgeApiKey);
+    }
+    return enrichConnectionSystemParametersWithOkapiToken(tenantId, username);
   }
 
-  private User populateMissingUserProperties(User existingUser) {
-    existingUser.setPersonal(new User.Personal());
-    existingUser.getPersonal()
-      .setLastName(USER_LAST_NAME);
+  private ConnectionSystemParameters enrichConnectionSystemParametersWithOkapiToken(String tenantId, String username) {
+    try {
+      return enrichWithOkapiToken(ConnectionSystemParameters.builder()
+        .tenantId(tenantId)
+        .username(username)
+        .password(secureStore.get(STAGING_DIRECTOR_CLIENT_NAME, tenantId, username))
+        .build());
+    } catch (NotFoundException e) {
+      throw new AuthorizationException("Cannot get system connection properties for: " + tenantId);
+    }
+  }
 
-    return existingUser;
+  public Set<String> getTenantsUsersMap() {
+    return tenantsUsersMap.keySet();
+  }
+
+  public Map<String, String> getStagingDirectorTenantsUsers() {
+    return tenantsUsersMap;
+  }
+
+  private ConnectionSystemParameters enrichWithOkapiToken(ConnectionSystemParameters connectionSystemParameters) {
+    final String token = ofNullable(authnClient.getApiKey(connectionSystemParameters, connectionSystemParameters.getTenantId())
+      .getHeaders()
+      .get(X_OKAPI_TOKEN)).orElseThrow(() -> new AuthorizationException("Cannot retrieve okapi token"))
+        .get(0);
+    connectionSystemParameters.setOkapiToken(token);
+    return connectionSystemParameters;
+  }
+
+  private Properties getProperties(String secureStorePropFile) {
+    Properties secureStoreProps = new Properties();
+
+    if (secureStorePropFile != null) {
+      URL url = null;
+      try {
+        if (isURL.matcher(secureStorePropFile)
+          .matches()) {
+          url = new URL(secureStorePropFile);
+        }
+        try (InputStream in = url == null ? SecurityManagerService.class.getClassLoader()
+          .getResourceAsStream(secureStorePropFile) : url.openStream()) {
+          secureStoreProps.load(in);
+          log.info("Successfully loaded properties from: " + secureStorePropFile);
+        }
+      } catch (Exception e) {
+        throw new AuthorizationException("Failed to load secure store properties");
+      }
+    } else {
+      log.warn("No secure store properties file specified. Using defaults");
+    }
+    return secureStoreProps;
   }
 }
