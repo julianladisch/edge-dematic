@@ -9,17 +9,21 @@ stages:
   - publishImageConfig:
       dockerfilePath: ./Dockerfile
       buildContext: .
-      tag: docker.dev.folio.org/edge-dematic:firebird-latest
+      tag: docker.dev.folio.org/edge-dematic:firebird-${CICD_EXECUTION_SEQUENCE}
       pushRemote: true
       registry: docker.dev.folio.org
 - name: Deploy
   steps:
   - applyAppConfig:
-      catalogTemplate: p-ngvqv:firebird-helmcharts-edge-dematic
-      version: 0.1.24
+      catalogTemplate: p-w9rxn:firebird-helmcharts-edge-dematic
+      version: 0.1.25
       answers:
         image.repository: docker.dev.folio.org/edge-dematic
-        image.tag: firebird-latest
+        image.tag: firebird-${CICD_EXECUTION_SEQUENCE}
+        ingress.enabled: "true"
+        ingress.annotations.external-dns\.alpha\.kubernetes\.io/target: f2b6996c-kubesystem-albing-accc-1096161577.us-west-2.elb.amazonaws.com
+        ingress.hosts[0].host: firebird-edge-dematic.ci.folio.org
+        ingress.hosts[0].paths[0]: /
         postJob.enabled: true
       targetNamespace: firebird
       name: edge-dematic
