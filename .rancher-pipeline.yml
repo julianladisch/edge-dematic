@@ -16,11 +16,11 @@ stages:
   steps:
   - applyAppConfig:
       catalogTemplate: p-w9rxn:firebird-helmcharts-edge-dematic
-      version: 0.1.25
+      version: 0.1.27
       answers:
         image.repository: docker.dev.folio.org/edge-dematic
         image.tag: firebird-${CICD_EXECUTION_SEQUENCE}
-        ingress.enabled: "true"
+        ingress.enabled: true
         ingress.annotations.external-dns\.alpha\.kubernetes\.io/target: f2b6996c-kubesystem-albing-accc-1096161577.us-west-2.elb.amazonaws.com
         ingress.hosts[0].host: firebird-edge-dematic.ci.folio.org
         ingress.hosts[0].paths[0]: /
