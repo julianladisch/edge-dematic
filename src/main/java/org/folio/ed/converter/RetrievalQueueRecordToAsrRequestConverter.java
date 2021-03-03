@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import org.folio.ed.domain.dto.RetrievalQueueRecord;
-import org.folio.rs.domain.dto.AsrRequest;
+import org.folio.ed.domain.dto.AsrRequest;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 

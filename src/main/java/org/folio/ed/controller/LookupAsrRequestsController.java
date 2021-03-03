@@ -1,8 +1,8 @@
 package org.folio.ed.controller;
 
 import org.folio.ed.service.RemoteStorageService;
-import org.folio.rs.domain.dto.AsrRequests;
-import org.folio.rs.rest.resource.LookupAsrRequestsApi;
+import org.folio.ed.domain.dto.AsrRequests;
+import org.folio.ed.rest.resource.LookupAsrRequestsApi;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

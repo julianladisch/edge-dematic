@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 
 import org.folio.ed.TestBase;
 import org.folio.edge.core.utils.ApiKeyUtils;
-import org.folio.rs.domain.dto.AsrItems;
-import org.folio.rs.domain.dto.AsrRequests;
-import org.folio.rs.domain.dto.UpdateAsrItem;
+import org.folio.ed.domain.dto.AsrItems;
+import org.folio.ed.domain.dto.AsrRequests;
+import org.folio.ed.domain.dto.UpdateAsrItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,11 +37,12 @@ public class EmsIntegrationTest extends TestBase {
 
   private static final String LOOKUP_NEW_ASR_ITEM = "http://localhost:%s/asrService/asr/lookupNewAsrItems";
   private static final String LOOKUP_ASR_REQUESTS = "http://localhost:%s/asrService/asr/lookupAsrRequests";
-  private static final String UPDATE_ASR_STATUS_AVAILABLE = "http://localhost:%s/asrService/asr/updateASRItemStatusBeingRetrieved";
+  private static final String UPDATE_ASR_STATUS_RETRIEVED = "http://localhost:%s/asrService/asr/updateASRItemStatusBeingRetrieved";
+  private static final String UPDATE_ASR_STATUS_AVAILABLE = "http://localhost:%s/asrService/asr/updateASRItemStatusAvailable";
 
   private static final String APIKEY = ApiKeyUtils.generateApiKey("stagingDirector", TEST_TENANT, TEST_USER);
 
-  private String lookupNewAsrItem, lookupAsrRequests, updateAsrStatusAvailable;
+  private String lookupNewAsrItem, lookupAsrRequests, updateAsrStatusBeingRetrieved, updateAsrStatusAvailable;
 
   @Autowired
   private MappingJackson2XmlHttpMessageConverter converter;
@@ -50,6 +51,7 @@ public class EmsIntegrationTest extends TestBase {
   void prepareUrl() {
     lookupNewAsrItem = String.format(LOOKUP_NEW_ASR_ITEM, edgeDematicPort);
     lookupAsrRequests = String.format(LOOKUP_ASR_REQUESTS, edgeDematicPort);
+    updateAsrStatusBeingRetrieved = String.format(UPDATE_ASR_STATUS_RETRIEVED, edgeDematicPort);
     updateAsrStatusAvailable = String.format(UPDATE_ASR_STATUS_AVAILABLE, edgeDematicPort);
   }
 
@@ -58,7 +60,7 @@ public class EmsIntegrationTest extends TestBase {
     log.info("===== Get items: successful (edge API key in the query parameter) =====");
 
     var response = get(lookupNewAsrItem + "/de17bad7-2a30-4f1c-bee5-f653ded15629?apikey=" + APIKEY,
-        getEmptyHeaders(), String.class);
+      getEmptyHeaders(), String.class);
 
     assertThat(response.getBody(), notNullValue());
     assertThat(response.getStatusCode(), is(HttpStatus.OK));
@@ -101,7 +103,7 @@ public class EmsIntegrationTest extends TestBase {
     log.info("===== Get items: internal server error =====");
     var headers = getEmptyHeaders();
     var exception = assertThrows(HttpServerErrorException.class,
-        () -> get(lookupNewAsrItem + "/c7310e5e-c4be-4d8f-943c-faaa35679aaa?apikey=" + APIKEY, headers, String.class));
+      () -> get(lookupNewAsrItem + "/c7310e5e-c4be-4d8f-943c-faaa35679aaa?apikey=" + APIKEY, headers, String.class));
     assertThat(exception.getStatusCode(), is(HttpStatus.INTERNAL_SERVER_ERROR));
   }
 
@@ -110,7 +112,7 @@ public class EmsIntegrationTest extends TestBase {
     log.info("===== Get requests: successful (edge API key in the query parameter) =====");
 
     var response = get(lookupAsrRequests + "/de17bad7-2a30-4f1c-bee5-f653ded15629?apikey=" + APIKEY,
-        getEmptyHeaders(), String.class);
+      getEmptyHeaders(), String.class);
 
     assertThat(response.getBody(), notNullValue());
     assertThat(response.getStatusCode(), is(HttpStatus.OK));
@@ -131,7 +133,7 @@ public class EmsIntegrationTest extends TestBase {
     assertThat(asrRequest.getItemBarcode(), is("697685458679"));
     assertThat(asrRequest.getAuthor(), is("Some Author"));
     assertThat(asrRequest.getTitle(), is("Some title"));
-    assertThat(asrRequest.getCallNumber(), is("+1-111-222"));
+    assertThat(asrRequest.getCallNumber(), is("some call number"));
     assertThat(asrRequest.getPatronBarcode(), is("987654321"));
     assertThat(asrRequest.getPatronName(), is("Some Patron Name"));
     assertThat(asrRequest.getPickupLocation(), is("pickup_location"));
@@ -161,20 +163,20 @@ public class EmsIntegrationTest extends TestBase {
 
     var headers = getEmptyHeaders();
     var exception = assertThrows(HttpServerErrorException.class,
-        () -> get(lookupAsrRequests + "/c7310e5e-c4be-4d8f-943c-faaa35679aaa?apikey=" + APIKEY, headers, String.class));
+      () -> get(lookupAsrRequests + "/c7310e5e-c4be-4d8f-943c-faaa35679aaa?apikey=" + APIKEY, headers, String.class));
     assertThat(exception.getStatusCode(), is(HttpStatus.INTERNAL_SERVER_ERROR));
   }
 
   @Test
-  void postAsrItemUpdateTest() {
+  void postAsrItemChekInTest() {
     log.info("===== Post item update (check-in): successful (edge API key in the headers) =====");
 
     var updateAsrItem = new UpdateAsrItem();
-    updateAsrItem.setItemBarcode("123456789");
+    updateAsrItem.setItemBarcode("697685458679");
     var headers = getEmptyHeaders();
     headers.put(HttpHeaders.AUTHORIZATION, Collections.singletonList(APIKEY));
-    var responseEntity = post(updateAsrStatusAvailable + "/de17bad7-2a30-4f1c-bee5-f653ded15629", headers,
-        updateAsrItem, String.class);
+    var responseEntity = post(updateAsrStatusBeingRetrieved + "/de17bad7-2a30-4f1c-bee5-f653ded15629", headers,
+      updateAsrItem, String.class);
     assertThat(responseEntity.getStatusCode(), is(HttpStatus.CREATED));
 
     var serveEvents = wireMockServer.getAllServeEvents()
@@ -186,7 +188,32 @@ public class EmsIntegrationTest extends TestBase {
     assertThat(serveEvents.size(), is(2));
     var checkInServeEvent = serveEvents.get("/remote-storage/retrieve/de17bad7-2a30-4f1c-bee5-f653ded15629/checkInItem");
     assertThat(checkInServeEvent.getRequest()
-      .getBodyAsString(), containsString("{\"itemBarcode\":\"123456789\"}"));
+      .getBodyAsString(), containsString("{\"itemBarcode\":\"697685458679\"}"));
+
+  }
+
+  @Test
+  void postAsrItemReturnTest() {
+    log.info("===== Post item update (return): successful (edge API key in the headers) =====");
+
+    var updateAsrItem = new UpdateAsrItem();
+    updateAsrItem.setItemBarcode("697685458679");
+    var headers = getEmptyHeaders();
+    headers.put(HttpHeaders.AUTHORIZATION, Collections.singletonList(APIKEY));
+    var responseEntity = post(updateAsrStatusAvailable + "/de17bad7-2a30-4f1c-bee5-f653ded15629", headers,
+      updateAsrItem, String.class);
+    assertThat(responseEntity.getStatusCode(), is(HttpStatus.CREATED));
+
+    var serveEvents = wireMockServer.getAllServeEvents()
+      .stream()
+      .collect(Collectors.toMap(e -> e.getRequest()
+        .getUrl(), identity()));
+
+    // Verify call to mod-remote-storage
+    assertThat(serveEvents.size(), is(2));
+    var checkInServeEvent = serveEvents.get("/remote-storage/return/de17bad7-2a30-4f1c-bee5-f653ded15629");
+    assertThat(checkInServeEvent.getRequest()
+      .getBodyAsString(), containsString("{\"itemBarcode\":\"697685458679\"}"));
 
   }
 
@@ -199,8 +226,8 @@ public class EmsIntegrationTest extends TestBase {
     var headers = getEmptyHeaders();
 
     HttpServerErrorException exception = assertThrows(HttpServerErrorException.class,
-        () -> post(updateAsrStatusAvailable + "/de17bad7-2a30-4f1c-bee5-f653ded15629?apikey=" + APIKEY, headers, updateAsrItem,
-            String.class));
+      () -> post(updateAsrStatusAvailable + "/de17bad7-2a30-4f1c-bee5-f653ded15629?apikey=" + APIKEY, headers, updateAsrItem,
+        String.class));
     assertThat(exception.getStatusCode(), is(HttpStatus.INTERNAL_SERVER_ERROR));
   }
 

@@ -11,7 +11,7 @@ public class ServerMessageHandler implements GenericHandler<String> {
   private static final Logger LOGGER = LoggerFactory.getLogger(ServerMessageHandler.class);
 
   @Override
-  public Object handle(String payload, MessageHeaders messageHeaders) {
+  public String handle(String payload, MessageHeaders messageHeaders) {
     LOGGER.info("Server message handler income: {}", payload);
     return "TR".equals(payload.substring(0, 2)) ? null : TRANSACTION_RESPONSE_MESSAGE;
   }

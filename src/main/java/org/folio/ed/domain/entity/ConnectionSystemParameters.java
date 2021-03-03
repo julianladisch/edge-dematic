@@ -1,9 +1,5 @@
 package org.folio.ed.domain.entity;
 
-import java.util.UUID;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

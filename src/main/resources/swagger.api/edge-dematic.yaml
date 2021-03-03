@@ -31,7 +31,7 @@ paths:
     get:
       responses:
         '200':
-          description: "The polling API for accessions"
+          description: "The polling API for retrievals"
           content:
             application/xml:
               schema:
@@ -43,7 +43,7 @@ paths:
               schema:
                 type: string
                 example: Internal server error
-      description: Get a list of items
+      description: Get a list of requests
       operationId: getAsrRequests
       parameters:
         - $ref: "#/components/parameters/storage_id"
@@ -59,7 +59,7 @@ paths:
         required: true
       responses:
         '200':
-          description: "The polling API for accessions"
+          description: "The polling API for retrievals"
         '500':
           description: Internal server error
           content:
@@ -67,8 +67,32 @@ paths:
               schema:
                 type: string
                 example: Internal server error
-      description: Get a list of items
-      operationId: updateAsrItem
+      description: Chek-in item
+      operationId: updateAsrItemCheckIn
+      parameters:
+        - $ref: "#/components/parameters/storage_id"
+        - $ref: "#/components/parameters/x-okapi-token"
+        - $ref: "#/components/parameters/x-okapi-tenant"
+  /updateASRItemStatusAvailable/{remoteStorageConfigurationId}:
+    post:
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/updateAsrItem"
+        required: true
+      responses:
+        '200':
+          description: "The polling API for returns"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      description: Return item
+      operationId: updateAsrItemReturn
       parameters:
         - $ref: "#/components/parameters/storage_id"
         - $ref: "#/components/parameters/x-okapi-token"

@@ -3,8 +3,8 @@ package org.folio.ed.controller;
 import javax.validation.Valid;
 
 import org.folio.ed.service.RemoteStorageService;
-import org.folio.rs.domain.dto.UpdateAsrItem;
-import org.folio.rs.rest.resource.UpdateASRItemStatusBeingRetrievedApi;
+import org.folio.ed.domain.dto.UpdateAsrItem;
+import org.folio.ed.rest.resource.UpdateASRItemStatusAvailableApi;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,18 +21,17 @@ import lombok.extern.log4j.Log4j2;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping(value = "/asrService/asr/")
-public class UpdateAsrItemStatusAvailableController implements UpdateASRItemStatusBeingRetrievedApi {
+public class UpdateASRItemStatusAvailableController implements UpdateASRItemStatusAvailableApi {
 
   private final RemoteStorageService remoteStorageService;
 
   @Override
-  public ResponseEntity<Void> updateAsrItem(
+  public ResponseEntity<Void> updateAsrItemReturn(
       @ApiParam(required = true) @PathVariable("remoteStorageConfigurationId") String remoteStorageConfigurationId,
       @ApiParam(required = true) @RequestHeader(value = "x-okapi-token") String xOkapiToken,
       @ApiParam(required = true) @RequestHeader(value = "x-okapi-tenant") String xOkapiTenant,
       @ApiParam(required = true) @Valid @RequestBody UpdateAsrItem updateAsrItem) {
-
-    remoteStorageService.checkInItemByBarcode(remoteStorageConfigurationId, updateAsrItem.getItemBarcode(), xOkapiTenant,
+    remoteStorageService.returnItemByBarcode(remoteStorageConfigurationId, updateAsrItem.getItemBarcode(), xOkapiTenant,
         xOkapiToken);
     return new ResponseEntity<>(HttpStatus.CREATED);
   }

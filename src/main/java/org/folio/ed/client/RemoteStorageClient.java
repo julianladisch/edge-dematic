@@ -4,7 +4,7 @@ import static org.folio.spring.integration.XOkapiHeaders.TENANT;
 import static org.folio.spring.integration.XOkapiHeaders.TOKEN;
 
 import org.folio.ed.domain.dto.AccessionQueueRecord;
-import org.folio.ed.domain.dto.Configurations;
+import org.folio.ed.domain.dto.Configuration;
 import org.folio.ed.domain.dto.ResultList;
 import org.folio.ed.domain.dto.RetrievalQueueRecord;
 import org.folio.ed.domain.request.ItemBarcodeRequest;
@@ -19,27 +19,30 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(value = "remote-storage")
 public interface RemoteStorageClient {
-
   @GetMapping(path = "/accessions", produces = "application/json")
   ResultList<AccessionQueueRecord> getAccessionsByQuery(@RequestParam("query") String query, @RequestHeader(TENANT) String tenantId,
-      @RequestHeader(TOKEN) String okapiToken);
+    @RequestHeader(TOKEN) String okapiToken);
 
   @GetMapping(path = "/retrievals", produces = "application/json")
   ResultList<RetrievalQueueRecord> getRetrievalsByQuery(@RequestParam("query") String query, @RequestHeader(TENANT) String tenantId,
-      @RequestHeader(TOKEN) String okapiToken);
+    @RequestHeader(TOKEN) String okapiToken);
 
   @PutMapping("/accessions/barcode/{barcode}")
   ResponseEntity<String> setAccessionedByBarcode(@PathVariable("barcode") String barcode, @RequestHeader(TENANT) String tenantId,
-      @RequestHeader(TOKEN) String okapiToken);
+    @RequestHeader(TOKEN) String okapiToken);
 
   @PutMapping("/retrievals/barcode/{barcode}")
   ResponseEntity<String> setRetrievalByBarcode(@PathVariable("barcode") String barcode, @RequestHeader(TENANT) String tenantId,
-      @RequestHeader(TOKEN) String okapiToken);
+    @RequestHeader(TOKEN) String okapiToken);
 
   @PostMapping("/retrieve/{configurationId}/checkInItem")
   ResponseEntity<String> checkInItem(@PathVariable("configurationId") String configurationId, ItemBarcodeRequest itemBarcodeRequest,
-      @RequestHeader(TENANT) String tenantId, @RequestHeader(TOKEN) String okapiToken);
+    @RequestHeader(TENANT) String tenantId, @RequestHeader(TOKEN) String okapiToken);
+
+  @PostMapping("/return/{configurationId}")
+  ResponseEntity<String> returnItem(@PathVariable("configurationId") String configurationId, ItemBarcodeRequest itemBarcodeRequest,
+    @RequestHeader(TENANT) String tenantId, @RequestHeader(TOKEN) String okapiToken);
 
   @GetMapping("/configurations")
-  Configurations getStorageConfigurations(@RequestHeader(TENANT) String tenantId, @RequestHeader(TOKEN) String okapiToken);
+  ResultList<Configuration> getStorageConfigurations(@RequestHeader(TENANT) String tenantId, @RequestHeader(TOKEN) String okapiToken);
 }

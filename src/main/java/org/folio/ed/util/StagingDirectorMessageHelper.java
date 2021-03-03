@@ -1,23 +1,32 @@
 package org.folio.ed.util;
 
+import static java.util.Objects.isNull;
+import static org.apache.commons.lang3.StringUtils.SPACE;
+import static org.folio.ed.util.MessageTypes.HEARTBEAT;
+import static org.folio.ed.util.MessageTypes.INVENTORY_ADD;
+import static org.folio.ed.util.MessageTypes.PICK_REQUEST;
+import static org.folio.ed.util.MessageTypes.STATUS_CHECK;
+import static org.folio.ed.util.MessageTypes.TRANSACTION_RESPONSE;
+import static org.folio.ed.util.StagingDirectorErrorCodes.SUCCESS;
+
 import org.folio.ed.domain.dto.AccessionQueueRecord;
+import org.folio.ed.domain.dto.RetrievalQueueRecord;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static org.folio.ed.util.MessageTypes.HEARTBEAT;
-import static org.folio.ed.util.MessageTypes.INVENTORY_ADD;
-import static org.folio.ed.util.MessageTypes.TRANSACTION_RESPONSE;
-import static org.folio.ed.util.StagingDirectorErrorCodes.SUCCESS;
-
 public final class StagingDirectorMessageHelper {
+  static final int MSG_TYPE_SIZE = 2;
+
   private static final int MAX_TRANSACTION_NUMBER = 99999;
   private static final String TIMESTAMP_PATTERN = "yyyyMMddHHmmss";
 
-  private static final int AUTHOR_SIZE = 50;
+  private static final int AUTHOR_SIZE = 35;
   private static final int CALL_NUM_SIZE = 50;
   private static final int ERROR_REASON_SIZE = 3;
-  private static final int MSG_TYPE_SIZE = 2;
+  private static final int PATRON_BARCODE_SIZE = 20;
+  private static final int PATRON_NAME_SIZE = 40;
+  private static final int PICKUP_LOCATION_SIZE = 6;
   private static final int SKU_SIZE = 14;
   private static final int TIMESTAMP_SIZE = 14;
   private static final int TITLE_SIZE = 35;
@@ -47,6 +56,22 @@ public final class StagingDirectorMessageHelper {
       message.substring(MSG_TYPE_SIZE, MSG_TYPE_SIZE + TRANS_NUM_SIZE) +
       getTimestampString() +
       SUCCESS.getValue();
+  }
+  public static String buildStatusCheckMessage(RetrievalQueueRecord record) {
+    return buildMessageHeader(STATUS_CHECK.getCode()) +
+      formatValue(SKU_SIZE, record.getItemBarcode());
+  }
+
+  public static String buildPickRequestMessage(RetrievalQueueRecord record) {
+    return isNull(record) ? null : buildMessageHeader(PICK_REQUEST.getCode()) +
+      formatValue(SKU_SIZE, record.getItemBarcode()) +
+      formatValue(PICKUP_LOCATION_SIZE, record.getPickupLocation()) +
+      SPACE +
+      formatValue(PATRON_BARCODE_SIZE, record.getPatronBarcode()) +
+      formatValue(PATRON_NAME_SIZE, record.getPatronName()) +
+      formatValue(CALL_NUM_SIZE, record.getCallNumber()) +
+      formatValue(TITLE_SIZE, record.getInstanceTitle()) +
+      formatValue(AUTHOR_SIZE, record.getInstanceAuthor());
   }
 
   public static MessageTypes resolveMessageType(String message) {

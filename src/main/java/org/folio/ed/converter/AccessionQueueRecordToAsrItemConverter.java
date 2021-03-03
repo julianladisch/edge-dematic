@@ -1,7 +1,7 @@
 package org.folio.ed.converter;
 
 import org.folio.ed.domain.dto.AccessionQueueRecord;
-import org.folio.rs.domain.dto.AsrItem;
+import org.folio.ed.domain.dto.AsrItem;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 

@@ -27,3 +27,9 @@ folio.tenant.validation.enabled: false
 # mock server settings
 mock.server.primary.port: 10001
 mock.server.status.port: 10002
+
+# response timeout for the primary channel (millis)
+primary.channel.response.timeout: 20000
+
+# disable scheduling
+app.scheduling.enable: false

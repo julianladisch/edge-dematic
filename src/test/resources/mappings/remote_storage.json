@@ -94,7 +94,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\"totalRecords\":1,\"retrievals\":[{\"id\":\"5a38cc7d-b8c8-4a43-ad07-14c784dfbcbb\",\"holdId\":\"hold_id\",\"itemBarcode\":\"697685458679\",\"instanceTitle\":\"Some title\",\"instanceAuthor\":\"Some Author\",\"callNumber\":\"+1-111-222\",\"patronBarcode\":\"987654321\",\"patronName\":\"Some Patron Name\",\"retrievedDateTime\":null,\"pickupLocation\":\"pickup_location\",\"requestStatus\":\"Request-Status\",\"requestNote\":\"Request_Note\",\"createdDateTime\":\"2021-02-21T17:29:09.086+00:00\",\"remoteStorageId\":\"de17bad7-2a30-4f1c-bee5-f653ded15629\",\"metadata\":null}]}",
+        "body": "{\"totalRecords\":1,\"retrievals\":[{\"id\":\"5a38cc7d-b8c8-4a43-ad07-14c784dfbcbb\",\"holdId\":\"hold_id\",\"itemBarcode\":\"697685458679\",\"instanceTitle\":\"Some title\",\"instanceAuthor\":\"Some Author\",\"callNumber\":\"some call number\",\"patronBarcode\":\"987654321\",\"patronName\":\"Some Patron Name\",\"retrievedDateTime\":null,\"pickupLocation\":\"pickup_location\",\"requestStatus\":\"Request-Status\",\"requestNote\":\"Request_Note\",\"createdDateTime\":\"2021-02-21T17:29:09.086+00:00\",\"remoteStorageId\":\"de17bad7-2a30-4f1c-bee5-f653ded15629\",\"metadata\":null}]}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -173,7 +173,29 @@
           }
         },
         "bodyPatterns" : [ {
-          "equalToJson" : "{\"itemBarcode\" : \"123456789\"}"
+          "equalToJson" : "{\"itemBarcode\" : \"697685458679\"}"
+        } ]
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }, {
+      "request": {
+        "method": "POST",
+        "url": "/remote-storage/return/de17bad7-2a30-4f1c-bee5-f653ded15629",
+        "headers" : {
+          "x-okapi-token": {
+            "equalTo": "AAA-BBB-CCC-DDD"
+          },
+          "x-okapi-tenant": {
+            "equalTo": "test_tenant"
+          }
+        },
+        "bodyPatterns" : [ {
+          "equalToJson" : "{\"itemBarcode\" : \"697685458679\"}"
         } ]
       },
       "response": {

@@ -30,5 +30,8 @@ folio.tenant.validation.enabled: false
 # heartbeat timeframe for the primary channel (millis)
 primary.channel.heartbeat.timeframe: 30000
 
+# response timeout for the primary channel (millis)
+primary.channel.response.timeout: 20000
+
 # configurations update timeframe (millis)
 configurations.update.timeframe: 3600000
