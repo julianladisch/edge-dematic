@@ -7,6 +7,8 @@ import static org.folio.edge.core.Constants.DEFAULT_SECURE_STORE_TYPE;
 import static org.folio.edge.core.Constants.PROP_SECURE_STORE_TYPE;
 import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
@@ -143,8 +145,7 @@ public class SecurityManagerService {
           .matches()) {
           url = new URL(secureStorePropFile);
         }
-        try (InputStream in = url == null ? SecurityManagerService.class.getClassLoader()
-          .getResourceAsStream(secureStorePropFile) : url.openStream()) {
+        try (InputStream in = url == null ? new FileInputStream(new File(secureStorePropFile)) : url.openStream()) {
           secureStoreProps.load(in);
           log.info("Successfully loaded properties from: " + secureStorePropFile);
         }
