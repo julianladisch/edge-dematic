@@ -152,10 +152,10 @@ public class SecurityManagerService {
           log.info("Successfully loaded properties from: " + secureStorePropFile);
         }
       } catch (Exception e) {
-        log.warn("Failed to load secure store properties.", e);
+        throw new AuthorizationException("Failed to load secure store properties");
       }
     } else {
-      log.warn("No secure store properties file specified.  Using defaults");
+      log.warn("No secure store properties file specified. Using defaults");
     }
     return secureStoreProps;
   }
