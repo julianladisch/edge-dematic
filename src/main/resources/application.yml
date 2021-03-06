@@ -1,5 +1,7 @@
-okapi_url: http://localhost:9130
-secure_store_props: src/main/resources/ephemeral.properties
+Dokapi_url: http://localhost:9130
+okapi_url: ${Dokapi_url}
+Dsecure_store_props: src/main/resources/ephemeral.properties
+secure_store_props: ${Dsecure_store_props}
 secure_store: Ephemeral
 api_key_sources: PARAM,HEADER
 spring:
