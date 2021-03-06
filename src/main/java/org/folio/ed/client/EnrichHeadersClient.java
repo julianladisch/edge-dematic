@@ -24,7 +24,7 @@ public class EnrichHeadersClient extends Client.Default {
   @SneakyThrows
   public Response execute(Request request, Options options) {
 
-    FieldUtils.writeDeclaredField(request, "url", request.url().replace("http://", okapiUrl), true);
+    FieldUtils.writeDeclaredField(request, "url", request.url().replace("http://", okapiUrl + "/"), true);
 
     return super.execute(request, options);
   }

@@ -1,4 +1,4 @@
-okapi_url: http://localhost:3333/
+okapi_url: http://localhost:3333
 spring:
   application:
     name: edge-dematic

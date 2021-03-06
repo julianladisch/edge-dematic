@@ -48,7 +48,7 @@ public class SensitiveDataProtectionLogger extends Logger {
   }
 
   private Request getSensitiveDataProtectedRequest(Request request) {
-    return Request.create(request.httpMethod(), request.url().replace("http://", okapiUrl), maskOkapiTokenInHeaders(request.headers()), request.requestBody());
+    return Request.create(request.httpMethod(), request.url().replace("http://", okapiUrl + "/"), maskOkapiTokenInHeaders(request.headers()), request.requestBody());
   }
 
   private Response getSensitiveDataProtectedResponse(Response response) {
