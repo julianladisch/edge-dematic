@@ -277,8 +277,4 @@ public class EmsIntegrationTest extends TestBase {
     assertThat(exception.getStatusCode(), is(HttpStatus.FORBIDDEN));
     assertThat(exception.getMessage(), is("403 : [Malformed edge api key: 1]"));
   }
-
-  private HttpHeaders getEmptyHeaders() {
-    return new HttpHeaders();
-  }
 }
