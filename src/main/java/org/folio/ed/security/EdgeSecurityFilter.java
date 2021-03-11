@@ -9,6 +9,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.catalina.connector.RequestFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.ed.domain.entity.RequestWithHeaders;
 import org.folio.ed.error.AuthorizationException;
@@ -23,6 +24,8 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class EdgeSecurityFilter implements Filter {
 
+  public static final String HEALTH_ENDPOINT = "/admin/health";
+  public static final String INFO_ENDPOINT = "/admin/info";
   private final SecurityManagerService securityManagerService;
   private final ApiKeyHelper apiKeyHelper;
 
@@ -30,20 +33,27 @@ public class EdgeSecurityFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
       throws IOException, ServletException {
 
-    var edgeApiKey = apiKeyHelper.getEdgeApiKey(request);
-
-    if (StringUtils.isEmpty(edgeApiKey)) {
-      throw new AuthorizationException("Edge API key not found in the request");
-    }
-
+    String path = ((RequestFacade) request).getServletPath();
     final HttpServletRequest httpRequest = (HttpServletRequest) request;
     RequestWithHeaders wrapper = new RequestWithHeaders(httpRequest);
 
-    var systemUserParameters = securityManagerService.getOkapiConnectionParameters(edgeApiKey);
+    if (isAuthorizationNeeded(path)) {
+      var edgeApiKey = apiKeyHelper.getEdgeApiKey(request);
 
-    wrapper.putHeader(XOkapiHeaders.TOKEN, systemUserParameters.getOkapiToken());
-    wrapper.putHeader(XOkapiHeaders.TENANT, systemUserParameters.getTenantId());
+      if (StringUtils.isEmpty(edgeApiKey)) {
+        throw new AuthorizationException("Edge API key not found in the request");
+      }
 
+      var systemUserParameters = securityManagerService.getOkapiConnectionParameters(edgeApiKey);
+
+      wrapper.putHeader(XOkapiHeaders.TOKEN, systemUserParameters.getOkapiToken());
+      wrapper.putHeader(XOkapiHeaders.TENANT, systemUserParameters.getTenantId());
+
+    }
     filterChain.doFilter(wrapper, response);
+  }
+
+  private boolean isAuthorizationNeeded(String path) {
+    return !(path.contains(HEALTH_ENDPOINT) || path.equals(INFO_ENDPOINT));
   }
 }

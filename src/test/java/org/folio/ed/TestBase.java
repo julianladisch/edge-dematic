@@ -67,4 +67,8 @@ public class TestBase {
   public <T> ResponseEntity<T> post(String url, HttpHeaders headers, Object entity, Class<T> clazz) {
     return restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(entity, headers), clazz);
   }
+
+  protected HttpHeaders getEmptyHeaders() {
+    return new HttpHeaders();
+  }
 }
