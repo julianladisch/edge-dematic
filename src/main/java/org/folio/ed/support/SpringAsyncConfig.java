@@ -9,7 +9,7 @@ public class SpringAsyncConfig implements AsyncConfigurer {
 
   @Override
   public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-    return new org.folio.ed.support.CustomAsyncExceptionHandler();
+    return new CustomAsyncExceptionHandler();
   }
 
 }
