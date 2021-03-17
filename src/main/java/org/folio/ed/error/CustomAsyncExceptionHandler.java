@@ -1,4 +1,4 @@
-package org.folio.ed.support;
+package org.folio.ed.error;
 
 import java.lang.reflect.Method;
 

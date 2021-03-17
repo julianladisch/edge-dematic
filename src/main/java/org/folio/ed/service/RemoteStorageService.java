@@ -27,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 public class RemoteStorageService {
 
   private static final String STAGING_DIRECTOR_NAME = "Dematic_SD";
-  private static final String STORAGE_ID = "storageId=";
 
   private final Map<String, List<RetrievalQueueRecord>> retrievalsMap = new HashMap<>();
 
@@ -36,12 +35,12 @@ public class RemoteStorageService {
   private final RetrievalQueueRecordToAsrRequestConverter retrievalQueueRecordToAsrRequestConverter;
 
   public List<AccessionQueueRecord> getAccessionQueueRecords(String storageId, String tenantId, String okapiToken) {
-    return remoteStorageClient.getAccessionsByQuery(STORAGE_ID + storageId + "&accessioned=false", tenantId, okapiToken)
+    return remoteStorageClient.getAccessionsByQuery(storageId, false, Integer.MAX_VALUE, tenantId, okapiToken)
       .getResult();
   }
 
   public List<RetrievalQueueRecord> getRetrievalQueueRecords(String storageId, String tenantId, String okapiToken) {
-    retrievalsMap.put(storageId, remoteStorageClient.getRetrievalsByQuery(STORAGE_ID + storageId + "&retrieved=false", tenantId, okapiToken).getResult());
+    retrievalsMap.put(storageId, remoteStorageClient.getRetrievalsByQuery(storageId, false, Integer.MAX_VALUE, tenantId, okapiToken).getResult());
     return retrievalsMap.get(storageId);
   }
 
@@ -88,7 +87,7 @@ public class RemoteStorageService {
   public AsrRequests getRequests(String remoteStorageConfigurationId, String tenantId, String okapiToken) {
     var asrRequests = new AsrRequests();
     asrRequests.asrRequests(remoteStorageClient
-      .getRetrievalsByQuery(STORAGE_ID + remoteStorageConfigurationId + "&retrieved=false", tenantId, okapiToken)
+      .getRetrievalsByQuery(remoteStorageConfigurationId, false, Integer.MAX_VALUE, tenantId, okapiToken)
       .getResult()
       .stream()
       .map(retrievalQueueRecordToAsrRequestConverter::convert)

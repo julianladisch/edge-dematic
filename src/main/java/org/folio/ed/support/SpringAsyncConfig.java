@@ -1,5 +1,6 @@
 package org.folio.ed.support;
 
+import org.folio.ed.error.CustomAsyncExceptionHandler;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
