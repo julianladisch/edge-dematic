@@ -11,7 +11,7 @@
 
   <groupId>org.folio</groupId>
   <artifactId>edge-dematic</artifactId>
-  <version>1.0.0</version>
+  <version>X.Y.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <licenses>
