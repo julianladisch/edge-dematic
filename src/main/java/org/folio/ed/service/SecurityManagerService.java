@@ -3,8 +3,6 @@ package org.folio.ed.service;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static org.folio.ed.util.Constants.COMMA;
-import static org.folio.edge.core.Constants.DEFAULT_SECURE_STORE_TYPE;
-import static org.folio.edge.core.Constants.PROP_SECURE_STORE_TYPE;
 import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
 
 import java.io.FileInputStream;
@@ -63,13 +61,12 @@ public class SecurityManagerService {
   public void init() {
 
     Properties secureStoreProps = getProperties(secureStorePropsFile);
-    String type = secureStoreProps.getProperty(PROP_SECURE_STORE_TYPE, DEFAULT_SECURE_STORE_TYPE);
 
     String tenantsStr;
 
-    secureStore = SecureStoreFactory.getSecureStore(type, secureStoreProps);
+    secureStore = SecureStoreFactory.getSecureStore(secureStoreType, secureStoreProps);
 
-    if (AwsParamStore.TYPE.equals(type)) {
+    if (AwsParamStore.TYPE.equals(secureStoreType)) {
       final Optional<String> stringOptional = ((TenantAwareAWSParamStore) secureStore).getTenants();
       if (stringOptional.isEmpty()) {
         log.warn("Tenants list not found in AWS Param store. Please create variable, which contains comma separated list of tenants");
