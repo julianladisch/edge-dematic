@@ -1,5 +1,8 @@
 ## 1.1.0 - Unreleased
 
+## 1.0.2 - Released
+This release includes documentation updating (README.md) with deployment instructions
+
 ## 1.0.1 Released
 The focus of this release was to fix deployment issue
 
