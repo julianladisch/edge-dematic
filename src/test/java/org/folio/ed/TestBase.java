@@ -30,7 +30,7 @@ public class TestBase {
   private static RestTemplate restTemplate;
   public static WireMockServer wireMockServer;
   public static String TEST_TENANT = "test_tenant";
-  public static String TEST_USER = "test_user";
+  public static String TEST_USER = "stagingDirector";
 
   @Autowired
   private CacheManager cacheManager;

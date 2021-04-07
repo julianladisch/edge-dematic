@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
@@ -39,7 +40,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class SecurityManagerService {
 
-  public static final String STAGING_DIRECTOR_CLIENT_NAME = "stagingDirector";
+  public static final String STAGING_DIRECTOR_CLIENT_AND_USERNAME = "stagingDirector";
   public static final String SYSTEM_USER_PARAMETERS_CACHE = "systemUserParameters";
 
   @Value("${secure_store}")
@@ -78,8 +79,7 @@ public class SecurityManagerService {
     }
 
     tenantsUsersMap = Arrays.stream(COMMA.split(tenantsStr))
-      .collect(toMap(tenant -> tenant, tenant -> COMMA
-        .split(secureStoreProps.getProperty(tenant))[0]));
+      .collect(toMap(Function.identity(),tenant -> STAGING_DIRECTOR_CLIENT_AND_USERNAME));
   }
 
   @Cacheable(value = SYSTEM_USER_PARAMETERS_CACHE, key = "#tenantId")
@@ -107,7 +107,7 @@ public class SecurityManagerService {
       return enrichWithOkapiToken(ConnectionSystemParameters.builder()
         .tenantId(tenantId)
         .username(username)
-        .password(secureStore.get(STAGING_DIRECTOR_CLIENT_NAME, tenantId, username))
+        .password(secureStore.get(STAGING_DIRECTOR_CLIENT_AND_USERNAME, tenantId, STAGING_DIRECTOR_CLIENT_AND_USERNAME))
         .build());
     } catch (NotFoundException e) {
       throw new AuthorizationException("Cannot get system connection properties for: " + tenantId);

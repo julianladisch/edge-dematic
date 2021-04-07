@@ -1,6 +1,6 @@
 package org.folio.ed.security;
 
-import static org.folio.ed.service.SecurityManagerService.STAGING_DIRECTOR_CLIENT_NAME;
+import static org.folio.ed.service.SecurityManagerService.STAGING_DIRECTOR_CLIENT_AND_USERNAME;
 
 import java.util.Optional;
 import java.util.Properties;
@@ -19,7 +19,7 @@ public class TenantAwareAWSParamStore extends AwsParamStore {
   }
 
   public Optional<String> getTenants() {
-    String key = STAGING_DIRECTOR_CLIENT_NAME + "_tenants";
+    String key = STAGING_DIRECTOR_CLIENT_AND_USERNAME + "_tenants";
     GetParameterRequest req = (new GetParameterRequest()).withName(key)
       .withWithDecryption(true);
 

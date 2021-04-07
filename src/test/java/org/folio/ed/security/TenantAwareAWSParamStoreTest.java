@@ -1,6 +1,6 @@
 package org.folio.ed.security;
 
-import static org.folio.ed.service.SecurityManagerService.STAGING_DIRECTOR_CLIENT_NAME;
+import static org.folio.ed.service.SecurityManagerService.STAGING_DIRECTOR_CLIENT_AND_USERNAME;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -44,7 +44,7 @@ public class TenantAwareAWSParamStoreTest {
     log.info("=== Test: Get tenants ===");
 
     String value = "test_tenant_1, test_user";
-    String key = STAGING_DIRECTOR_CLIENT_NAME + "_tenants";
+    String key = STAGING_DIRECTOR_CLIENT_AND_USERNAME + "_tenants";
 
     GetParameterRequest req = (new GetParameterRequest()).withName(key)
       .withWithDecryption(true);

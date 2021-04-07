@@ -21,11 +21,15 @@ API provides the following URLs for working with remote storage configurations:
 | POST | /asrService/asr/updateASRItemStatusAvailable/{remoteStorageConfigurationId} | The API for return |
 
 ### Deployment information
-Dematic StagingDirector connection should be established from the Dematic edge Folio module. Therefore Dematic edge module 
+1. Dematic StagingDirector connection should be established from the Dematic edge Folio module. Therefore Dematic edge module 
 needs to know the name of all the tenants, which has StagingDirector connection. For the ephemeral configuration these names locate in the
-`ephemeral.properties` (key `tenants`). In order to provide it before the deployment the list of tenant names (e.g. ids) should be put to AWS parameters store. The tenant names list separated by 
+`ephemeral.properties` (key `tenants`). In order to provide it before the deployment the list of tenant names (e.g. ids) should be put to AWS parameters store (as String). The tenant names list separated by 
 coma (e.g. diku, someothertenantname) should be stored in AWS param store (like it is put for API_KEYs) in the variable with 
-key: `stagingDirector_tenants`.
+key: `stagingDirector_tenants`. 
+2. For each tenant using StagingDirector the corresponding user should be added 
+to the AWS parameter store in the following format `stagingDirector_{{tenant}}_stagingDirector` (where salt and user name are the same - `stagingDirector`) with corresponding password (as Secured String). 
+This user should work as ordinary edge institutional user with the only one difference 
+- it names stagingDirector and salt is named the same - stagingDirector.
 
 ### Required Permissions
 Institutional users (as well as StagingDirector tenants) should be granted the following permissions in order to use this edge API:
