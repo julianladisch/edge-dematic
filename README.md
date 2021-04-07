@@ -10,8 +10,25 @@ The purpose of this edge API is to bridge the gap between Dematic remote storage
 
 ## Additional information
 
+### API Details
+API provides the following URLs for working with remote storage configurations:
+
+| Method | URL| Description | 
+|---|---|---|
+| GET | /asrService/asr/lookupNewAsrItems/{remoteStorageConfigurationId}  | The polling API for accessions |
+| GET | /asrService/asr/updateASRItemStatusBeingRetrieved/{remoteStorageConfigurationId} | The polling API for retrievals |
+| GET | /asrService/asr//updateASRItemStatusBeingRetrieved/{remoteStorageConfigurationId} | The API for retrieve |
+| POST | /asrService/asr/updateASRItemStatusAvailable/{remoteStorageConfigurationId} | The API for return |
+
+### Deployment information
+Dematic StagingDirector connection should be established from the Dematic edge Folio module. Therefore Dematic edge module 
+needs to know the name of all the tenants, which has StagingDirector connection. For the ephemeral configuration these names locate in the
+`ephemeral.properties` (key `tenants`). In order to provide it before the deployment the list of tenant names (e.g. ids) should be put to AWS parameters store. The tenant names list separated by 
+coma (e.g. diku, someothertenantname) should be stored in AWS param store (like it is put for API_KEYs) in the variable with 
+key: `stagingDirector_tenants`.
+
 ### Required Permissions
-Institutional users should be granted the following permissions in order to use this edge API:
+Institutional users (as well as StagingDirector tenants) should be granted the following permissions in order to use this edge API:
 - `remote-storage.all`
 
 ### Configuration
@@ -22,6 +39,7 @@ See project [EDGDEMATIC](https://issues.folio.org/browse/EDGDEMATIC)
 at the [FOLIO issue tracker](https://dev.folio.org/guidelines/issue-tracker).
 
 ### Other documentation
+Feature documentation [Remote Storage Integration](https://wiki.folio.org/display/DD/Remote+storages+integration).
 Other [modules](https://dev.folio.org/source-code/#server-side) are described,
 with further FOLIO Developer documentation at
 [dev.folio.org](https://dev.folio.org/)
