@@ -31,7 +31,7 @@ public class SecurityManagerServiceTest extends TestBase {
   @Test
   void testGetTenants() {
     log.info("=== Test: Get tenants ===");
-    var tenants = sms.getTenantsUsersMap();
+    var tenants = sms.getStagingDirectorTenantsUserMap();
     assertThat(tenants, hasSize(1));
   }
 
