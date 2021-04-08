@@ -56,7 +56,7 @@ public class SecurityManagerService {
 
   private SecureStore secureStore;
 
-  private Map<String, String> tenantsUsersMap = new HashMap<>();
+  private Map<String, String> stagingDirectorTenantsUserMap = new HashMap<>();
 
   @PostConstruct
   public void init() {
@@ -78,48 +78,45 @@ public class SecurityManagerService {
       tenantsStr = (String) secureStoreProps.get("tenants");
     }
 
-    tenantsUsersMap = Arrays.stream(COMMA.split(tenantsStr))
-      .collect(toMap(Function.identity(),tenant -> STAGING_DIRECTOR_CLIENT_AND_USERNAME));
+    stagingDirectorTenantsUserMap = Arrays.stream(COMMA.split(tenantsStr))
+      .collect(toMap(Function.identity(), tenant -> STAGING_DIRECTOR_CLIENT_AND_USERNAME));
   }
 
   @Cacheable(value = SYSTEM_USER_PARAMETERS_CACHE, key = "#tenantId")
   public ConnectionSystemParameters getStagingDirectorConnectionParameters(String tenantId) {
-    return enrichConnectionSystemParametersWithOkapiToken(tenantId, tenantsUsersMap.get(tenantId));
+    return enrichConnectionSystemParametersWithOkapiToken(STAGING_DIRECTOR_CLIENT_AND_USERNAME, tenantId, stagingDirectorTenantsUserMap.get(tenantId));
   }
 
   @Cacheable(value = SYSTEM_USER_PARAMETERS_CACHE, key = "#edgeApiKey")
   public ConnectionSystemParameters getOkapiConnectionParameters(String edgeApiKey) {
-
-    String tenantId;
-    String username;
     try {
       ClientInfo clientInfo = ApiKeyUtils.parseApiKey(edgeApiKey);
-      tenantId = clientInfo.tenantId;
-      username = clientInfo.username;
+      return enrichConnectionSystemParametersWithOkapiToken(clientInfo.salt, clientInfo.tenantId,
+        clientInfo.username);
     } catch (ApiKeyUtils.MalformedApiKeyException e) {
       throw new AuthorizationException("Malformed edge api key: " + edgeApiKey);
     }
-    return enrichConnectionSystemParametersWithOkapiToken(tenantId, username);
   }
 
-  private ConnectionSystemParameters enrichConnectionSystemParametersWithOkapiToken(String tenantId, String username) {
+  private ConnectionSystemParameters enrichConnectionSystemParametersWithOkapiToken(
+    String salt, String tenantId, String username) {
     try {
       return enrichWithOkapiToken(ConnectionSystemParameters.builder()
         .tenantId(tenantId)
         .username(username)
-        .password(secureStore.get(STAGING_DIRECTOR_CLIENT_AND_USERNAME, tenantId, STAGING_DIRECTOR_CLIENT_AND_USERNAME))
+        .password(secureStore.get(salt, tenantId, username))
         .build());
     } catch (NotFoundException e) {
       throw new AuthorizationException("Cannot get system connection properties for: " + tenantId);
     }
   }
 
-  public Set<String> getTenantsUsersMap() {
-    return tenantsUsersMap.keySet();
+  public Set<String> getStagingDirectorTenantsUserMap() {
+    return stagingDirectorTenantsUserMap.keySet();
   }
 
   public Map<String, String> getStagingDirectorTenantsUsers() {
-    return tenantsUsersMap;
+    return stagingDirectorTenantsUserMap;
   }
 
   private ConnectionSystemParameters enrichWithOkapiToken(ConnectionSystemParameters connectionSystemParameters) {
