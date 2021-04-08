@@ -1,5 +1,14 @@
 ## 1.1.0 - Unreleased
 
+## 1.0.3 - Released
+This release includes fix for AWS deployment issue
+
+[Full Changelog](https://github.com/folio-org/edge-dematic/compare/v1.0.2...v1.0.3)
+
+### Bug Fixes
+* [EDGDEMATIC-20](https://issues.folio.org/browse/EDGDEMATIC-20) - edge-dematic fails during deployment time
+
+
 ## 1.0.2 - Released
 This release includes documentation updating (README.md) with deployment instructions
 
