@@ -1,5 +1,18 @@
 ## 1.1.0 - Unreleased
 
+## 1.0.2 - Released
+This release includes documentation updating (README.md) with deployment instructions
+
+[Full Changelog](https://github.com/folio-org/edge-dematic/compare/v1.0.1...v1.0.2)
+
+## 1.0.1 Released
+The focus of this release was to fix deployment issue
+
+[Full Changelog](https://github.com/folio-org/edge-dematic/compare/v1.0.0...v1.0.1)
+
+### Bug Fixes
+* [EDGDEMATIC-16](https://issues.folio.org/browse/EDGDEMATIC-16) - Deployment issue: edge-dematic can't be configured for integration with AWS
+
 ## 1.0.0 - Released
 
 The primary focus of this release was to implement backend logic for Dematic integration
