@@ -19,7 +19,7 @@ public class SecureTenantsProducerTest {
 
     var stagingDirectorTenants = "stagingDirectorTenants";
     var mockSecureStore = Mockito.mock(EphemeralStore.class);
-    Optional<String> tenants = SecureTenantsProducer.getTenants(secureStoreProps, mockSecureStore, stagingDirectorTenants);
+    var tenants = SecureTenantsProducer.getTenants(secureStoreProps, mockSecureStore, stagingDirectorTenants);
     assertEquals("test_tenant", tenants.get());
 
     var mockAwsSecureStore  = Mockito.mock(TenantAwareAWSParamStore.class);
