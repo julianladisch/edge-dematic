@@ -26,7 +26,7 @@ API provides the following URLs for working with remote storage configurations:
 needs to know the name of all the tenants, which has StagingDirector connection. For the ephemeral configuration these names locate in the
 `ephemeral.properties` (key `tenants`). In order to provide it before the deployment the list of tenant names (e.g. ids) should be put to AWS parameters store (as String). The tenant names list separated by 
 coma (e.g. diku, someothertenantname) should be stored in AWS param store in the variable with 
-key: `stagingDirector_tenants`. 
+key: `stagingDirector_tenants` by default or could be provided its own key through `staging_director_tenants` parameter of starting module. 
 2. For each tenant using StagingDirector the corresponding user should be added 
 to the AWS parameter store with key in the following format `stagingDirector_{{tenant}}_stagingDirector` (where salt and username are the same - `stagingDirector`) with value of corresponding `{{password}}` (as Secured String). 
 This user should work as ordinary edge institutional user with the only one difference 

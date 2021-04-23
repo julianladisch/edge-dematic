@@ -4,6 +4,8 @@ Dsecure_store_props: src/main/resources/ephemeral.properties
 secure_store_props: ${Dsecure_store_props}
 Dsecure_store: Ephemeral
 secure_store: ${Dsecure_store}
+Dstaging_director_tenants: stagingDirector_tenants
+staging_director_tenants: ${Dstaging_director_tenants}
 api_key_sources: PARAM,HEADER
 spring:
   application:

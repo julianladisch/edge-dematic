@@ -49,6 +49,9 @@ public class SecurityManagerService {
   @Value("${secure_store_props}")
   private String secureStorePropsFile;
 
+  @Value("${staging_director_tenants}")
+  private String stagingDirectorTenants;
+
   @Autowired
   private AuthnClient authnClient;
 
@@ -68,7 +71,7 @@ public class SecurityManagerService {
     secureStore = SecureStoreFactory.getSecureStore(secureStoreType, secureStoreProps);
 
     if (AwsParamStore.TYPE.equals(secureStoreType)) {
-      final Optional<String> stringOptional = ((TenantAwareAWSParamStore) secureStore).getTenants();
+      final Optional<String> stringOptional = ((TenantAwareAWSParamStore) secureStore).getTenants(stagingDirectorTenants);
       if (stringOptional.isEmpty()) {
         log.warn("Tenants list not found in AWS Param store. Please create variable, which contains comma separated list of tenants");
         return;
