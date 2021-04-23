@@ -9,6 +9,8 @@ import java.util.Properties;
 @Log4j2
 public class SecureTenantsProducer {
 
+  private SecureTenantsProducer() {}
+
   public static Optional<String> getTenants(Properties secureStoreProps, SecureStore secureStore, String stagingDirectorTenants) {
     if (secureStore instanceof TenantAwareAWSParamStore) {
       var stringOptional = ((TenantAwareAWSParamStore) secureStore).getTenants(stagingDirectorTenants);

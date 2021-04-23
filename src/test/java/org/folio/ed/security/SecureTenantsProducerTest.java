@@ -13,7 +13,7 @@ import static org.mockito.Mockito.when;
 public class SecureTenantsProducerTest {
 
   @Test
-  public void testGetTenants() {
+  void testGetTenants() {
     var secureStoreProps = new Properties();
     secureStoreProps.put("tenants", "test_tenant");
 
