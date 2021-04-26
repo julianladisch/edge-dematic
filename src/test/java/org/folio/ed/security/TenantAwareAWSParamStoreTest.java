@@ -47,19 +47,16 @@ public class TenantAwareAWSParamStoreTest {
   void testGetTenantsIfStagingDirectorTenantsValueEmpty() {
     log.info("=== Test: Get tenants if staging director tenants value is empty ===");
 
-    String value = "test_tenant_1, test_user";
-
-    GetParameterResult resp = new GetParameterResult().withParameter(new Parameter().withName("parameterName")
+    var value = "test_tenant_1, test_user";
+    var resp = new GetParameterResult().withParameter(new Parameter().withName("parameterName")
       .withValue(value));
     when(ssm.getParameter(isA(GetParameterRequest.class))).thenReturn(resp);
 
-    ArgumentCaptor<GetParameterRequest> argumentRequest = ArgumentCaptor.forClass(GetParameterRequest.class);
-
+    var argumentRequest = ArgumentCaptor.forClass(GetParameterRequest.class);
     var tenants = secureStore.getTenants(null);
     verify(ssm).getParameter(argumentRequest.capture());
 
     assertEquals(DEFAULT_AWS_KEY_PARAMETER, argumentRequest.getValue().getName());
-
     assertTrue(tenants.isPresent());
     assertThat(tenants.get(), Matchers.equalTo(value));
   }
@@ -68,19 +65,16 @@ public class TenantAwareAWSParamStoreTest {
   void testGetTenantsIfStagingDirectorTenantsValueNotEmpty() {
     log.info("=== Test: Get tenants if staging director tenants value is not empty ===");
 
-    String value = "test_tenant_1, test_user";
-
-    GetParameterResult resp = new GetParameterResult().withParameter(new Parameter().withName("parameterName")
+    var value = "test_tenant_1, test_user";
+    var resp = new GetParameterResult().withParameter(new Parameter().withName("parameterName")
       .withValue(value));
     when(ssm.getParameter(isA(GetParameterRequest.class))).thenReturn(resp);
 
-    ArgumentCaptor<GetParameterRequest> argumentRequest = ArgumentCaptor.forClass(GetParameterRequest.class);
-
+    var argumentRequest = ArgumentCaptor.forClass(GetParameterRequest.class);
     var tenants = secureStore.getTenants("stagingDirectorTenants");
     verify(ssm).getParameter(argumentRequest.capture());
 
     assertEquals("stagingDirectorTenants", argumentRequest.getValue().getName());
-
     assertTrue(tenants.isPresent());
     assertThat(tenants.get(), Matchers.equalTo(value));
   }
