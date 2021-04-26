@@ -23,9 +23,8 @@ import org.folio.ed.client.AuthnClient;
 import org.folio.ed.domain.entity.ConnectionSystemParameters;
 import org.folio.ed.error.AuthorizationException;
 import org.folio.ed.security.SecureStoreFactory;
-import org.folio.ed.security.TenantAwareAWSParamStore;
+import org.folio.ed.security.SecureTenantsProducer;
 import org.folio.edge.core.model.ClientInfo;
-import org.folio.edge.core.security.AwsParamStore;
 import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.security.SecureStore.NotFoundException;
 import org.folio.edge.core.utils.ApiKeyUtils;
@@ -49,6 +48,9 @@ public class SecurityManagerService {
   @Value("${secure_store_props}")
   private String secureStorePropsFile;
 
+  @Value("${staging_director_tenants}")
+  private String stagingDirectorTenants;
+
   @Autowired
   private AuthnClient authnClient;
 
@@ -63,23 +65,11 @@ public class SecurityManagerService {
 
     Properties secureStoreProps = getProperties(secureStorePropsFile);
 
-    String tenantsStr;
-
     secureStore = SecureStoreFactory.getSecureStore(secureStoreType, secureStoreProps);
 
-    if (AwsParamStore.TYPE.equals(secureStoreType)) {
-      final Optional<String> stringOptional = ((TenantAwareAWSParamStore) secureStore).getTenants();
-      if (stringOptional.isEmpty()) {
-        log.warn("Tenants list not found in AWS Param store. Please create variable, which contains comma separated list of tenants");
-        return;
-      }
-      tenantsStr = stringOptional.get();
-    } else {
-      tenantsStr = (String) secureStoreProps.get("tenants");
-    }
-
-    stagingDirectorTenantsUserMap = Arrays.stream(COMMA.split(tenantsStr))
-      .collect(toMap(Function.identity(), tenant -> STAGING_DIRECTOR_CLIENT_AND_USERNAME));
+    Optional<String> tenants = SecureTenantsProducer.getTenants(secureStoreProps, secureStore, stagingDirectorTenants);
+    tenants.ifPresent(tenantsStr -> stagingDirectorTenantsUserMap = Arrays.stream(COMMA.split(tenantsStr))
+      .collect(toMap(Function.identity(), tenant -> STAGING_DIRECTOR_CLIENT_AND_USERNAME)));
   }
 
   @Cacheable(value = SYSTEM_USER_PARAMETERS_CACHE, key = "#tenantId")
