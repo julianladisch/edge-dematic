@@ -8,6 +8,24 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 ## Introduction
 The purpose of this edge API is to bridge the gap between Dematic remote storage provider and FOLIO.
 
+There are two modules involved in Dematic workflow: mod-remote-storage, which interacts with other Folio modules and edge-dematic, which acts as a gate between Dematic and Folio:
+
+`FOLIO <–> mod-remote-storage <–> edge-dematic <–> Dematic`
+
+Edge-dematic supports two separate ways of communication 
+* HTTP endpoints for Dematic EMS 
+* TCP/IP sockets for Dematic StagingDirector. 
+
+Dematic EMS interacts with Folio via HTTP endpoints (see [API Details](#api-details)). All flows – accession, retrieve and return – are initiated by Dematic. For each flow Dematic EMS polls appropriate edge-dematic endpoint. Each request must contain apikey as a query parameter: `/asrService/lookupNewASRItems/aaa-bbb-ccc?apikey=someApiKey`
+
+Dematic StagingDirector (hereinafter SD) requires two TCP/IP sockets (channels):
+* primary channel for sending requests to SD
+* status channel for responses from SD 
+
+Both connections initiated and maintained on Folio side by `edge-dematic` module. 
+
+Accession and retrieval flows initiated by Folio – at the configurable interval edge-dematic checks two queues: accession queue and retrieval queue (filled by `mod-remote-storage` when circulation events occur). If new records are present, module sends requests to SD via primary channel. SD then sends responses or, in case of item return, a return message via status channel.
+
 ## Additional information
 
 ### API Details
@@ -33,9 +51,29 @@ This user should work as ordinary edge institutional user with the only one diff
 - his username and salt name are - stagingDirector.
 3. User `stagingDirector` with password `{{password}}` and remote-storage.all permissions should be created on FOLIO. After that apikey can
 be generated for making calls to Edge Dematic API.
-   
+
+##### Create Dematic StagingDirector configuration
+1. Log in to Folio, go to "Settings" -> "Remote storage" -> "Configurations", click "New" button.
+2. Enter General information settings:
+* Select "Dematic StagingDirector" in Provider name box
+* Enter Remote storage name
+* Enter IP address and port in URL (for primary channel) and Status URL (for status channel). Address and port separated by colon (no whitespaces or other symbols), for example `192.168.1.1:1234`
+3. Set Data synchronization schedule. This setting defines timeframe to scan accession and retrieval queues and data exchange with provider.
+4. Click "Save & close" button
+
+*Note: Folio updates Dematic StagingDirector remote storage configuration settings each 60 minutes, so it can take up to one hour before new or edited Remote storage configuration settings will be applied.*   
+
 #### Dematic EMS setup
-The deployment information above is related only to Dematic StagingDirector edge user. For Dematic EMS another edge user (with corresponding API_KEY) should be created following the standard process for edge users creation. 
+The deployment information above is related only to Dematic StagingDirector edge user. For Dematic EMS another edge user (with corresponding API_KEY) should be created following the standard process for edge users creation.
+
+##### Create Dematic EMS configuration
+1. Log in to Folio, go to "Settings" -> "Remote storage" -> "Configurations", click "New" button.
+2. Enter General information settings:
+* Select "Dematic EMS" in Provider name box
+* Enter Remote storage name
+3. Click "Save & close" button
+
+*Note: Since Dematic EMS flows initiated on provider side, all other settings can be omitted.*
 
 ### Required Permissions
 The following permissions should be granted to institutional users (as well as StagingDirectortenants) in order to use this edge API:
