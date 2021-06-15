@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RemoteStorageService {
 
-  private static final String STAGING_DIRECTOR_NAME = "Dematic_SD";
+  private static final String STAGING_DIRECTOR_NAME = "DEMATIC_SD";
 
   private final Map<String, List<RetrievalQueueRecord>> retrievalsMap = new HashMap<>();
 
