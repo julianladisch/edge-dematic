@@ -1,4 +1,10 @@
-## 1.1.0 - Unreleased
+## 1.2.0 - Unreleased
+
+## 1.1.0 - Released
+This release includes fix for remote configuration retrieving
+
+### Bug Fixes
+* [EDGDEMATIC-28](https://issues.folio.org/browse/EDGDEMATIC-28) - edge-dematic doesn't update remote storage configurations for Dematic StagingDirector
 
 ## 1.0.3 - Released
 This release includes fix for AWS deployment issue
@@ -7,7 +13,6 @@ This release includes fix for AWS deployment issue
 
 ### Bug Fixes
 * [EDGDEMATIC-20](https://issues.folio.org/browse/EDGDEMATIC-20) - edge-dematic fails during deployment time
-
 
 ## 1.0.2 - Released
 This release includes documentation updating (README.md) with deployment instructions
