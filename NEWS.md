@@ -1,4 +1,29 @@
-## 1.1.0 - Unreleased
+## 1.3.0 - Unreleased
+
+## 1.2.0 - Released
+This release includes minor improvements on deployment process
+
+[Full Changelog](https://github.com/folio-org/edge-dematic/compare/v1.1.0...v1.2.0)
+
+### Stories
+* [EDGDEMATIC-27](https://issues.folio.org/browse/EDGDEMATIC-27) - Update edge-dematic documentation
+* [EDGDEMATIC-19](https://issues.folio.org/browse/EDGDEMATIC-19) - Make deployment parameters configurable
+
+## 1.1.0 - Released
+This release includes fix for remote configuration retrieving
+
+[Full Changelog](https://github.com/folio-org/edge-dematic/compare/v1.0.3...v1.1.0)
+
+### Bug Fixes
+* [EDGDEMATIC-28](https://issues.folio.org/browse/EDGDEMATIC-28) - edge-dematic doesn't update remote storage configurations for Dematic StagingDirector
+
+## 1.0.3 - Released
+This release includes fix for AWS deployment issue
+
+[Full Changelog](https://github.com/folio-org/edge-dematic/compare/v1.0.2...v1.0.3)
+
+### Bug Fixes
+* [EDGDEMATIC-20](https://issues.folio.org/browse/EDGDEMATIC-20) - edge-dematic fails during deployment time
 
 ## 1.0.2 - Released
 This release includes documentation updating (README.md) with deployment instructions
