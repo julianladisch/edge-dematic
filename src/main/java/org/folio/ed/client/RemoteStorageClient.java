@@ -20,12 +20,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(value = "remote-storage")
 public interface RemoteStorageClient {
   @GetMapping(path = "/accessions", produces = "application/json")
-  ResultList<AccessionQueueRecord> getAccessionsByQuery(@RequestParam("storageId") String storageId,
+  ResultList<AccessionQueueRecord> getAccessionsByQuery(@RequestParam("remoteStorageConfigurationId") String storageId,
       @RequestParam("accessioned") boolean retrieved, @RequestParam("limit") int limit, @RequestHeader(TENANT) String tenantId,
       @RequestHeader(TOKEN) String okapiToken);
 
   @GetMapping(path = "/retrievals", produces = "application/json")
-  ResultList<RetrievalQueueRecord> getRetrievalsByQuery(@RequestParam("storageId") String storageId,
+  ResultList<RetrievalQueueRecord> getRetrievalsByQuery(@RequestParam("remoteStorageConfigurationId") String storageId,
       @RequestParam("retrieved") boolean retrieved, @RequestParam("limit") int limit, @RequestHeader(TENANT) String tenantId,
       @RequestHeader(TOKEN) String okapiToken);
 

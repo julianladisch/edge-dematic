@@ -24,7 +24,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/remote-storage/accessions?storageId=de17bad7-2a30-4f1c-bee5-f653ded15629&accessioned=false&limit=2147483647",
+        "url": "/remote-storage/accessions?remoteStorageConfigurationId=de17bad7-2a30-4f1c-bee5-f653ded15629&accessioned=false&limit=2147483647",
         "headers" : {
           "x-okapi-token": {
             "equalTo": "AAA-BBB-CCC-DDD"
@@ -44,7 +44,7 @@
     }, {
       "request": {
         "method": "GET",
-        "url": "/remote-storage/accessions?storageId=c7310e5e-c4be-4d8f-943c-faaa35679aaa&accessioned=false&limit=2147483647",
+        "url": "/remote-storage/accessions?remoteStorageConfigurationId=c7310e5e-c4be-4d8f-943c-faaa35679aaa&accessioned=false&limit=2147483647",
         "headers" : {
           "x-okapi-token": {
             "equalTo": "AAA-BBB-CCC-DDD"
@@ -82,7 +82,7 @@
     }, {
       "request": {
         "method": "GET",
-        "url": "/remote-storage/retrievals?storageId=de17bad7-2a30-4f1c-bee5-f653ded15629&retrieved=false&limit=2147483647",
+        "url": "/remote-storage/retrievals?remoteStorageConfigurationId=de17bad7-2a30-4f1c-bee5-f653ded15629&retrieved=false&limit=2147483647",
         "headers" : {
           "x-okapi-token": {
             "equalTo": "AAA-BBB-CCC-DDD"
@@ -102,7 +102,7 @@
     },{
       "request": {
         "method": "GET",
-        "url": "/remote-storage/retrievals?storageId=c7310e5e-c4be-4d8f-943c-faaa35679aaa&retrieved=false&limit=2147483647",
+        "url": "/remote-storage/retrievals?remoteStorageConfigurationId=c7310e5e-c4be-4d8f-943c-faaa35679aaa&retrieved=false&limit=2147483647",
         "headers" : {
           "x-okapi-token": {
             "equalTo": "AAA-BBB-CCC-DDD"
