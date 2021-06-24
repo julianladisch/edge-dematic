@@ -21,7 +21,7 @@ public class FeedbackChannelHandler {
   private final RemoteStorageService remoteStorageService;
 
   public Object handle(String payload, String configId) {
-    LOGGER.info("Feedback channel handler income: {}", payload);
+    LOGGER.info("Feedback channel handler income: \"{}\"", payload);
     if ((resolveMessageType(payload) == STATUS_MESSAGE) &&
       (extractErrorCode(payload) == INVENTORY_IS_AVAILABLE)) {
       return buildPickRequestMessage(remoteStorageService.getRetrievalByBarcode(extractBarcode(payload), configId));
