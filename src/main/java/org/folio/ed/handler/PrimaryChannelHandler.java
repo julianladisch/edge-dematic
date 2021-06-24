@@ -28,12 +28,13 @@ public class PrimaryChannelHandler {
   private final SecurityManagerService sms;
 
   public Object handle(String payload, Configuration configuration) {
-    LOGGER.info("Primary channel income: {}", payload);
+    LOGGER.info("Primary channel handler income: \"{}\"", payload);
     var configId = configuration.getId();
     if (resolveMessageType(payload) == PICK_REQUEST) {
       picksMap.put(configId, extractBarcode(payload));
     }
     if (resolveMessageType(payload) == TRANSACTION_RESPONSE) {
+      remoteStorageService.updateLastMessageTime(configId);
       if (nonNull(picksMap.get(configId))) {
         var tenantId = configuration.getTenantId();
         remoteStorageService.setRetrievedAsync(picksMap.get(configId), tenantId,
@@ -46,6 +47,7 @@ public class PrimaryChannelHandler {
       }
       return null;
     }
+    LOGGER.info("Primary channel sending: \"{}\"", payload);
     return payload;
   }
 }
