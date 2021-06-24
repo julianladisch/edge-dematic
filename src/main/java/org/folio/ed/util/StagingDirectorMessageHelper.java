@@ -1,6 +1,8 @@
 package org.folio.ed.util;
 
 import static java.util.Objects.isNull;
+import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.SPACE;
 import static org.folio.ed.util.MessageTypes.HEARTBEAT;
 import static org.folio.ed.util.MessageTypes.INVENTORY_ADD;
@@ -88,7 +90,7 @@ public final class StagingDirectorMessageHelper {
   }
 
   private static String formatValue(int size, String value) {
-    return String.format("%-" + size + "." + size + "s", value); //NOSONAR
+    return String.format("%-" + size + "." + size + "s", ofNullable(value).orElse(EMPTY)); //NOSONAR
   }
 
   private static String buildMessageHeader(String messageType) {

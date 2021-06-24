@@ -1,5 +1,6 @@
 package org.folio.ed.service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class RemoteStorageService {
   private static final String STAGING_DIRECTOR_NAME = "DEMATIC_SD";
 
   private final Map<String, List<RetrievalQueueRecord>> retrievalsMap = new HashMap<>();
+  private final Map<String, LocalDateTime> lastMessageTimesMap = new HashMap<>();
 
   private final RemoteStorageClient remoteStorageClient;
   private final AccessionQueueRecordToAsrItemConverter accessionQueueRecordToAsrItemConverter;
@@ -105,4 +107,11 @@ public class RemoteStorageService {
     return remoteStorageClient.setRetrievalByBarcode(itemBarcode, tenantId, okapiToken);
   }
 
+  public void updateLastMessageTime(String configId) {
+    lastMessageTimesMap.put(configId, LocalDateTime.now());
+  }
+
+  public LocalDateTime getLastMessageTime(String configId) {
+    return lastMessageTimesMap.get(configId);
+  }
 }

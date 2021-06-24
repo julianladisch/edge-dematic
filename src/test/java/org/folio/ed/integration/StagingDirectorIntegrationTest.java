@@ -71,10 +71,11 @@ public class StagingDirectorIntegrationTest extends TestBase {
     log.info("===== Send Heartbeat (HM) and receive response (TR): successful =====");
     Configuration configuration = buildConfiguration();
 
+    remoteStorageService.updateLastMessageTime(configuration.getId());
     integrationService.registerPrimaryChannelOutboundGateway(configuration);
     integrationService.registerPrimaryChannelHeartbeatPoller(configuration);
 
-    await().atMost(1, SECONDS).untilAsserted(() -> {
+    await().atMost(40, SECONDS).untilAsserted(() -> {
       verify(serverMessageHandler).handle(matches(HEARTBEAT_PATTERN), any());
       verify(primaryChannelHandler).handle(matches(TRANSACTION_RESPONSE_PATTERN), any());
     });
