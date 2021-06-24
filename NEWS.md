@@ -1,5 +1,13 @@
 ## 1.2.0 - Unreleased
 
+## 1.1.1 - Released
+This release includes fix for TCP connection issue
+
+[Full Changelog](https://github.com/folio-org/edge-dematic/compare/v1.1.0...v1.1.1)
+
+### Bug Fixes
+* [EDGDEMATIC-33](https://issues.folio.org/browse/EDGDEMATIC-33) - Staging Director: TCP connection error
+
 ## 1.1.0 - Released
 This release includes fix for remote configuration retrieving
 
