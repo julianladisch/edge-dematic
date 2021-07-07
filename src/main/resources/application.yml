@@ -6,6 +6,8 @@ Dsecure_store: Ephemeral
 secure_store: ${Dsecure_store}
 Dstaging_director_tenants: stagingDirector_tenants
 staging_director_tenants: ${Dstaging_director_tenants}
+Dstaging_director_client: stagingDirector
+staging_director_client: ${Dstaging_director_client}
 api_key_sources: PARAM,HEADER
 spring:
   application:
