@@ -24,9 +24,9 @@ import org.springframework.integration.dsl.context.IntegrationFlowContext;
 import org.springframework.integration.ip.dsl.Tcp;
 import org.springframework.integration.ip.tcp.connection.TcpConnectionCloseEvent;
 import org.springframework.integration.ip.tcp.connection.TcpConnectionOpenEvent;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 
 @Service
@@ -48,8 +48,8 @@ public class StagingDirectorIntegrationService {
   private final StagingDirectorSerializerDeserializer serializerDeserializer;
   private final SecurityManagerService sms;
 
-  @Scheduled(fixedDelayString = "${configurations.update.timeframe}")
-  public void updateIntegrationFlows() {
+  @PostConstruct
+  private void createIntegrationFlows() {
     removeExistingFlows();
     var tenantsUsersMap = sms.getStagingDirectorTenantsUsers();
     for (String tenantId : tenantsUsersMap.keySet()) {
@@ -146,7 +146,7 @@ public class StagingDirectorIntegrationService {
     return integrationFlowContext
       .registration(IntegrationFlows
         .from(MessageChannels.publishSubscribe(configuration.getName() + FEEDBACK_CHANNEL_POSTFIX))
-        .<String>handle((p, h) -> feedbackChannelHandler.handle(p, configuration.getId()))
+        .<String>handle((p, h) -> feedbackChannelHandler.handle(p, configuration))
         .channel(MessageChannels.publishSubscribe(configuration.getName() + POLLER_CHANNEL_POSTFIX))
         .get())
       .register();

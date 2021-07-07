@@ -30,6 +30,3 @@ mock.server.status.port: 10002
 
 # heartbeat timeframe for the primary channel (seconds)
 primary.channel.heartbeat.timeframe: 10
-
-# disable scheduling
-app.scheduling.enable: false

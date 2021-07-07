@@ -2,10 +2,8 @@ package org.folio.ed.handler;
 
 import static org.folio.ed.util.MessageTypes.INVENTORY_CONFIRM;
 import static org.folio.ed.util.MessageTypes.ITEM_RETURNED;
-import static org.folio.ed.util.StagingDirectorErrorCodes.SUCCESS;
 import static org.folio.ed.util.StagingDirectorMessageHelper.buildTransactionResponseMessage;
 import static org.folio.ed.util.StagingDirectorMessageHelper.extractBarcode;
-import static org.folio.ed.util.StagingDirectorMessageHelper.extractErrorCode;
 import static org.folio.ed.util.StagingDirectorMessageHelper.resolveMessageType;
 
 import org.folio.ed.domain.dto.Configuration;
@@ -28,7 +26,7 @@ public class StatusChannelHandler {
   public Object handle(String payload, Configuration configuration) {
     LOGGER.info("Status channel handler income: \"{}\"", payload);
     var tenantId = configuration.getTenantId();
-    if ((resolveMessageType(payload) == INVENTORY_CONFIRM) && (extractErrorCode(payload) == SUCCESS)) {
+    if (resolveMessageType(payload) == INVENTORY_CONFIRM) {
       remoteStorageService.setAccessionedAsync(extractBarcode(payload), tenantId,
         sms.getStagingDirectorConnectionParameters(tenantId)
           .getOkapiToken());

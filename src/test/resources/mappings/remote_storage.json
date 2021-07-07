@@ -227,6 +227,66 @@
           "Content-Type": "application/json"
         }
       }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/remote-storage/items/barcode/item-barcode/markAsMissing",
+        "headers" : {
+          "x-okapi-token": {
+            "equalTo": "AAA-BBB-CCC-DDD"
+          },
+          "x-okapi-tenant": {
+            "equalTo": "test_tenant"
+          }
+        }
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "text/plain"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/remote-storage/retrievals/barcode/item-barcode",
+        "headers" : {
+          "x-okapi-token": {
+            "equalTo": "AAA-BBB-CCC-DDD"
+          },
+          "x-okapi-tenant": {
+            "equalTo": "test_tenant"
+          }
+        }
+      },
+      "response": {
+        "status": 204,
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/remote-storage/accessions/barcode/item-barcode",
+        "headers" : {
+          "x-okapi-token": {
+            "equalTo": "AAA-BBB-CCC-DDD"
+          },
+          "x-okapi-tenant": {
+            "equalTo": "test_tenant"
+          }
+        }
+      },
+      "response": {
+        "status": 204,
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
     }
   ]
 }
