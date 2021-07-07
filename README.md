@@ -46,10 +46,11 @@ needs to know the name of all the tenants, which has StagingDirector connection.
 coma (e.g. diku, someothertenantname) should be stored in AWS param store in the variable with 
 key: `stagingDirector_tenants` by default or could be provided its own key through `staging_director_tenants` parameter of starting module. 
 2. For each tenant using StagingDirector the corresponding user should be added 
-to the AWS parameter store with key in the following format `stagingDirector_{{tenant}}_stagingDirector` (where salt and username are the same - `stagingDirector`) with value of corresponding `{{password}}` (as Secured String). 
+to the AWS parameter store with key in the following format `{{username}}_{{tenant}}_{{username}}` (where salt and username are the same - `{{username}}`) with value of corresponding `{{password}}` (as Secured String). 
 This user should work as ordinary edge institutional user with the only one difference 
-- his username and salt name are - stagingDirector.
-3. User `stagingDirector` with password `{{password}}` and remote-storage.all permissions should be created on FOLIO. After that apikey can
+- his username and salt name are - `{{username}}`. 
+ By default the value of `{{username}}` is `stagingDirector`. It could be changed through `staging_director_client` parameter of starting module.
+3. User `{{username}}` with password `{{password}}` and remote-storage.all permissions should be created on FOLIO. After that apikey can
 be generated for making calls to Edge Dematic API.
 
 ##### Create Dematic StagingDirector configuration
