@@ -39,7 +39,6 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class SecurityManagerService {
 
-  public static final String STAGING_DIRECTOR_CLIENT_AND_USERNAME = "stagingDirector";
   public static final String SYSTEM_USER_PARAMETERS_CACHE = "systemUserParameters";
 
   @Value("${secure_store}")
@@ -50,6 +49,9 @@ public class SecurityManagerService {
 
   @Value("${staging_director_tenants}")
   private String stagingDirectorTenants;
+
+  @Value("${staging_director_client}")
+  private String stagingDirectorClient;
 
   @Autowired
   private AuthnClient authnClient;
@@ -69,12 +71,12 @@ public class SecurityManagerService {
 
     Optional<String> tenants = SecureTenantsProducer.getTenants(secureStoreProps, secureStore, stagingDirectorTenants);
     tenants.ifPresent(tenantsStr -> stagingDirectorTenantsUserMap = Arrays.stream(COMMA.split(tenantsStr))
-      .collect(toMap(Function.identity(), tenant -> STAGING_DIRECTOR_CLIENT_AND_USERNAME)));
+      .collect(toMap(Function.identity(), tenant -> stagingDirectorClient)));
   }
 
   @Cacheable(value = SYSTEM_USER_PARAMETERS_CACHE, key = "#tenantId")
   public ConnectionSystemParameters getStagingDirectorConnectionParameters(String tenantId) {
-    return enrichConnectionSystemParametersWithOkapiToken(STAGING_DIRECTOR_CLIENT_AND_USERNAME, tenantId, stagingDirectorTenantsUserMap.get(tenantId));
+    return enrichConnectionSystemParametersWithOkapiToken(stagingDirectorClient, tenantId, stagingDirectorTenantsUserMap.get(tenantId));
   }
 
   @Cacheable(value = SYSTEM_USER_PARAMETERS_CACHE, key = "#edgeApiKey")
