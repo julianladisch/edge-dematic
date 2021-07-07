@@ -107,6 +107,11 @@ public class RemoteStorageService {
     return remoteStorageClient.setRetrievalByBarcode(itemBarcode, tenantId, okapiToken);
   }
 
+  @Async
+  public ResponseEntity<String> markItemAsMissingAsync(String itemBarcode, String tenantId, String okapiToken) {
+    return remoteStorageClient.markItemAsMissing(itemBarcode, tenantId, okapiToken);
+  }
+
   public void updateLastMessageTime(String configId) {
     lastMessageTimesMap.put(configId, LocalDateTime.now());
   }
