@@ -1,5 +1,16 @@
 ## 1.3.0 - Unreleased
 
+## 1.2.1 - Released
+This release includes improvements for processing negative status messages and TCP connection fix
+
+[Full Changelog](https://github.com/folio-org/edge-dematic/compare/v1.2.0...v1.2.1)
+
+### Stories
+* [EDGDEMATIC-36](https://issues.folio.org/browse/EDGDEMATIC-36) - Processing negative status messages
+
+### Bug Fixes
+* [EDGDEMATIC-37](https://issues.folio.org/browse/EDGDEMATIC-37) - R1 Hotfix -> R2 Bugfix - Staging Director: TCP connection error
+
 ## 1.2.0 - Released
 This release includes minor improvements on deployment process
 
