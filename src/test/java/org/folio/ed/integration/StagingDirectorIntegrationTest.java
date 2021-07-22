@@ -7,11 +7,14 @@ import static org.folio.ed.security.SecurityManagerServiceTest.OKAPI_TOKEN;
 import static org.folio.ed.util.StagingDirectorMessageHelper.buildHeartbeatMessage;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.verify;
 
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import lombok.extern.log4j.Log4j2;
 import org.folio.ed.TestBase;
@@ -23,8 +26,11 @@ import org.folio.ed.config.MockServerConfig;
 import org.folio.ed.support.ServerMessageHelper;
 import org.folio.ed.handler.PrimaryChannelHandler;
 import org.folio.ed.handler.StatusChannelHandler;
+import org.folio.ed.util.StagingDirectorErrorCodes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
@@ -74,8 +80,8 @@ public class StagingDirectorIntegrationTest extends TestBase {
     integrationService.registerPrimaryChannelOutboundGateway(configuration);
     integrationService.registerPrimaryChannelHeartbeatPoller(configuration);
 
-    await().atMost(1, SECONDS).untilAsserted(() -> {
-      verify(serverMessageHandler).handle(matches(HEARTBEAT_PATTERN), any());
+    await().atMost(40, SECONDS).untilAsserted(() -> {
+      verify(primaryChannelHandler).handle(matches(HEARTBEAT_PATTERN), any());
       verify(primaryChannelHandler).handle(matches(TRANSACTION_RESPONSE_PATTERN), any());
     });
   }
@@ -86,10 +92,8 @@ public class StagingDirectorIntegrationTest extends TestBase {
     serverMessageHelper.setMessage(buildHeartbeatMessage());
     integrationService.registerStatusChannelFlow(buildConfiguration());
 
-    await().atMost(1, SECONDS).untilAsserted(() -> {
-      verify(statusChannelHandler).handle(matches(HEARTBEAT_PATTERN), any());
-      verify(serverMessageHandler).handle(matches(TRANSACTION_RESPONSE_PATTERN), any());
-    });
+    await().atMost(1, SECONDS).untilAsserted(() ->
+      verify(statusChannelHandler).handle(matches(HEARTBEAT_PATTERN), any()));
   }
 
   @Test
@@ -128,25 +132,24 @@ public class StagingDirectorIntegrationTest extends TestBase {
     assertThat(setAccessionEvent.getResponse().getStatus(), is(204));
   }
 
-  @Test
-  void shouldDoNothingWhenInventoryConfirmRejected() {
-    log.info("===== Receive rejected Inventory Confirm (IC) and do nothing : successful =====");
-    serverMessageHelper.setMessage("IC0000120200101121212697685458679  008");
+  @ParameterizedTest
+  @EnumSource(value = StagingDirectorErrorCodes.class, names = { "SUCCESS", "INVALID_SKU_FORMAT", "SKU_ALREADY_IN_DATABASE" })
+  void shouldSetAccessionedByBarcodeOnInventoryConfirmWithAnyCode(StagingDirectorErrorCodes errorCode) {
+    log.info("===== Receive Inventory Confirm (IC) with any code : successful =====");
+    serverMessageHelper.setMessage("IC0000120200101121212item-barcode  " + errorCode.getValue());
     Configuration configuration = buildConfiguration();
 
     integrationService.registerFeedbackChannelListener(configuration);
     integrationService.registerStatusChannelFlow(configuration);
 
     await().atMost(1, SECONDS).untilAsserted(() ->
-      verify(serverMessageHandler).handle(matches(TRANSACTION_RESPONSE_PATTERN), any()));
+      assertThat(wireMockServer.getAllServeEvents().size(), is(2)));
 
-    Map<String, ServeEvent> serveEvents = wireMockServer.getAllServeEvents()
-      .stream()
-      .collect(Collectors.toMap(e -> e.getRequest()
-        .getUrl(), identity()));
-
-    // no requests expected
-    assertThat(serveEvents.size(), is(0));
+    assertNotNull(wireMockServer.getAllServeEvents().stream()
+      .filter(event -> RequestMethod.PUT.equals(event.getRequest().getMethod()) &&
+        event.getRequest().getAbsoluteUrl().contains("/accessions/barcode/item-barcode"))
+      .findFirst()
+      .orElse(null));
   }
 
   @Test
@@ -196,28 +199,47 @@ public class StagingDirectorIntegrationTest extends TestBase {
       .getBodyAsString(), containsString("{\"itemBarcode\":\"697685458679\"}"));
   }
 
-  @Test
-  void shouldDoNothingWhenStatusMessageRejected() {
-    log.info("===== Receive rejected Status Message (SM) and do noting : successful =====");
+  @ParameterizedTest
+  @EnumSource(value = StagingDirectorErrorCodes.class, names = { "INVENTORY_NOT_IN_DATABASE", "SKU_NOT_IN_DATABASE", "INVALID_SKU_FORMAT" })
+  void shouldMarkItemAsMissingOnStatusMessageWithCodeForMissing(StagingDirectorErrorCodes errorCode) {
+    log.info("===== Receive rejected Status Message (SM) with code for missing item : successful =====");
     Configuration configuration = buildConfiguration();
-    serverMessageHelper.setMessage("SM0000120200101121212697685458679  010");
+    serverMessageHelper.setMessage("SM0000120200101121212item-barcode  " + errorCode.getValue());
 
     integrationService.registerFeedbackChannelListener(configuration);
     integrationService.registerPrimaryChannelOutboundGateway(configuration);
     integrationService.registerStatusChannelFlow(configuration);
 
-    await().atMost(1, SECONDS).untilAsserted(() -> {
-      verify(statusChannelHandler).handle(matches("SM\\d{19}697685458679\\s{2}010"), any());
-      verify(serverMessageHandler).handle(matches(TRANSACTION_RESPONSE_PATTERN), any());
-    });
+    await().atMost(1, SECONDS).untilAsserted(() ->
+      assertThat(wireMockServer.getAllServeEvents().size(), is(3)));
 
-    Map<String, ServeEvent> serveEvents = wireMockServer.getAllServeEvents()
-      .stream()
-      .collect(Collectors.toMap(e -> e.getRequest()
-        .getUrl(), identity()));
+    assertNotNull(wireMockServer.getAllServeEvents().stream()
+      .filter(event -> RequestMethod.POST.equals(event.getRequest().getMethod()) &&
+        event.getRequest().getAbsoluteUrl().contains("/items/barcode/item-barcode/markAsMissing"))
+      .findFirst()
+      .orElse(null));
+  }
 
-    // no requests expected
-    assertThat(serveEvents.size(), is(0));
+  @ParameterizedTest
+  @EnumSource(value = StagingDirectorErrorCodes.class,
+    names = { "INVENTORY_NOT_IN_DATABASE", "SKU_NOT_IN_DATABASE", "INVALID_SKU_FORMAT", "INVENTORY_ALREADY_COMMITTED", "INVENTORY_IS_NOT_AVAILABLE" })
+  void shouldSetRetrievalByBarcodeOnStatusMessageWithAnyCode(StagingDirectorErrorCodes errorCode) {
+    log.info("===== Receive rejected Status Message (SM) with any code : successful =====");
+    Configuration configuration = buildConfiguration();
+    serverMessageHelper.setMessage("SM0000120200101121212item-barcode  " + errorCode.getValue());
+
+    integrationService.registerFeedbackChannelListener(configuration);
+    integrationService.registerPrimaryChannelOutboundGateway(configuration);
+    integrationService.registerStatusChannelFlow(configuration);
+
+    await().atMost(1, SECONDS).untilAsserted(() ->
+      assertThat(wireMockServer.getAllServeEvents().size(), greaterThanOrEqualTo(2)));
+
+    assertNotNull(wireMockServer.getAllServeEvents().stream()
+      .filter(event -> RequestMethod.PUT.equals(event.getRequest().getMethod()) &&
+        event.getRequest().getAbsoluteUrl().contains("/retrievals/barcode/item-barcode"))
+      .findFirst()
+      .orElse(null));
   }
 
   @Test

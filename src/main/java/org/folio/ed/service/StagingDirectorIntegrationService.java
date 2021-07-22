@@ -1,5 +1,6 @@
 package org.folio.ed.service;
 
+import static java.util.Objects.isNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.folio.ed.util.StagingDirectorConfigurationsHelper.resolveAddress;
 import static org.folio.ed.util.StagingDirectorConfigurationsHelper.resolvePollingTimeFrame;
@@ -12,26 +13,32 @@ import org.folio.ed.handler.PrimaryChannelHandler;
 import org.folio.ed.handler.StatusChannelHandler;
 import org.folio.ed.util.StagingDirectorMessageHelper;
 import org.folio.ed.util.StagingDirectorSerializerDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.MessageChannels;
 import org.springframework.integration.dsl.Pollers;
 import org.springframework.integration.dsl.context.IntegrationFlowContext;
 import org.springframework.integration.ip.dsl.Tcp;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.integration.ip.tcp.connection.TcpConnectionCloseEvent;
+import org.springframework.integration.ip.tcp.connection.TcpConnectionOpenEvent;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class StagingDirectorIntegrationService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(StagingDirectorIntegrationService.class);
+
   private static final String POLLER_CHANNEL_POSTFIX = "_pollerChannel";
   private static final String FEEDBACK_CHANNEL_POSTFIX = "_feedbackChannel";
 
   @Value("${primary.channel.heartbeat.timeframe}")
   private long heartbeatTimeframe;
-
-  @Value("${primary.channel.response.timeout}")
-  private int responseTimeout;
 
   private final IntegrationFlowContext integrationFlowContext;
   private final RemoteStorageService remoteStorageService;
@@ -41,8 +48,8 @@ public class StagingDirectorIntegrationService {
   private final StagingDirectorSerializerDeserializer serializerDeserializer;
   private final SecurityManagerService sms;
 
-  @Scheduled(fixedDelayString = "${configurations.update.timeframe}")
-  public void updateIntegrationFlows() {
+  @PostConstruct
+  private void createIntegrationFlows() {
     removeExistingFlows();
     var tenantsUsersMap = sms.getStagingDirectorTenantsUsers();
     for (String tenantId : tenantsUsersMap.keySet()) {
@@ -77,7 +84,6 @@ public class StagingDirectorIntegrationService {
         .handle(Tcp
           .outboundGateway(Tcp
             .netClient(resolveAddress(configuration.getUrl()), resolvePort(configuration.getUrl()))
-            .soTimeout(responseTimeout)
             .serializer(serializerDeserializer)
             .deserializer(serializerDeserializer)))
         .<String>handle((p, h) -> primaryChannelHandler.handle(p, configuration))
@@ -89,11 +95,19 @@ public class StagingDirectorIntegrationService {
     Configuration configuration) {
     return integrationFlowContext
       .registration(IntegrationFlows
-        .from(StagingDirectorMessageHelper::buildHeartbeatMessage,
-          p -> p.poller(Pollers.fixedDelay(heartbeatTimeframe)))
+        .from(() -> buildHeartbeatMessageIfNeeded(configuration),
+          p -> p.poller(Pollers.fixedDelay(SECONDS.toMillis(1))))
         .channel(configuration.getName() + POLLER_CHANNEL_POSTFIX)
         .get())
       .register();
+  }
+
+  private String buildHeartbeatMessageIfNeeded(Configuration configuration) {
+    if (isNull(remoteStorageService.getLastMessageTime(configuration.getId())) ||
+      remoteStorageService.getLastMessageTime(configuration.getId()).plusSeconds(heartbeatTimeframe).isBefore(LocalDateTime.now())) {
+      return StagingDirectorMessageHelper.buildHeartbeatMessage();
+    }
+    return null;
   }
 
   public IntegrationFlowContext.IntegrationFlowRegistration registerPrimaryChannelAccessionPoller(
@@ -132,7 +146,7 @@ public class StagingDirectorIntegrationService {
     return integrationFlowContext
       .registration(IntegrationFlows
         .from(MessageChannels.publishSubscribe(configuration.getName() + FEEDBACK_CHANNEL_POSTFIX))
-        .<String>handle((p, h) -> feedbackChannelHandler.handle(p, configuration.getId()))
+        .<String>handle((p, h) -> feedbackChannelHandler.handle(p, configuration))
         .channel(MessageChannels.publishSubscribe(configuration.getName() + POLLER_CHANNEL_POSTFIX))
         .get())
       .register();
@@ -145,6 +159,7 @@ public class StagingDirectorIntegrationService {
           .inboundGateway(Tcp
             .netClient(resolveAddress(configuration.getStatusUrl()), resolvePort(configuration.getStatusUrl()))
               .singleUseConnections(false)
+              .soTimeout((int) SECONDS.toMillis(60))
               .serializer(serializerDeserializer)
               .deserializer(serializerDeserializer))
           .clientMode(true)
@@ -153,5 +168,15 @@ public class StagingDirectorIntegrationService {
         .<String>handle((p, h) -> statusChannelHandler.handle(p, configuration))
         .get())
       .register();
+  }
+
+  @EventListener(TcpConnectionOpenEvent.class)
+  public void handleConnectionOpenEvent(TcpConnectionOpenEvent event) {
+    LOGGER.info("Open connection: {}", event);
+  }
+
+  @EventListener(TcpConnectionCloseEvent.class)
+  public void handleConnectionCloseEvent(TcpConnectionCloseEvent event) {
+    LOGGER.info("Close connection: {}", event);
   }
 }

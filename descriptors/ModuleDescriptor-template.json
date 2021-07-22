@@ -21,6 +21,10 @@
     {
       "id": "remote-storage-check-in",
       "version": "1.2"
+    },
+    {
+      "id": "remote-storage-items",
+      "version": "1.0"
     }
   ],
   "provides": [],

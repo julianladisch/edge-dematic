@@ -48,4 +48,8 @@ public interface RemoteStorageClient {
   @GetMapping("/configurations")
   ResultList<Configuration> getStorageConfigurations(@RequestHeader(TENANT) String tenantId,
       @RequestHeader(TOKEN) String okapiToken);
+
+  @PostMapping("/items/barcode/{barcode}/markAsMissing")
+  ResponseEntity<String> markItemAsMissing(@PathVariable String barcode, @RequestHeader(TENANT) String tenantId,
+      @RequestHeader(TOKEN) String okapiToken);
 }

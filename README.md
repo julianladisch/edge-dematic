@@ -61,7 +61,7 @@ be generated for making calls to Edge Dematic API.
 3. Set Data synchronization schedule. This setting defines timeframe to scan accession and retrieval queues and data exchange with provider.
 4. Click "Save & close" button
 
-*Note: Folio updates Dematic StagingDirector remote storage configuration settings each 60 minutes, so it can take up to one hour before new or edited Remote storage configuration settings will be applied.*   
+*Note: Dematic StagingDirector configuration settings applied only upon module startup, so in case of their changes, edge-dematic service must be restarted.*   
 
 #### Dematic EMS setup
 The deployment information above is related only to Dematic StagingDirector edge user. For Dematic EMS another edge user (with corresponding API_KEY) should be created following the standard process for edge users creation.
