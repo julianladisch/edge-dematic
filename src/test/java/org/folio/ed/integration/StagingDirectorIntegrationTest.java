@@ -192,11 +192,6 @@ public class StagingDirectorIntegrationTest extends TestBase {
     // verify set retrieval
     ServeEvent serveEvent = serveEvents.get("/remote-storage/retrievals/barcode/697685458679");
     assertThat(serveEvent.getResponse().getStatus(), is(204));
-
-    // verify check-in
-    serveEvent = serveEvents.get("/remote-storage/retrieve/de17bad7-2a30-4f1c-bee5-f653ded15629/checkInItem");
-    assertThat(serveEvent.getRequest()
-      .getBodyAsString(), containsString("{\"itemBarcode\":\"697685458679\"}"));
   }
 
   @ParameterizedTest
