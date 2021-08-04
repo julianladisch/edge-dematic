@@ -40,9 +40,6 @@ public class PrimaryChannelHandler {
         remoteStorageService.setRetrievedAsync(picksMap.get(configId), tenantId,
           sms.getStagingDirectorConnectionParameters(tenantId)
           .getOkapiToken());
-        remoteStorageService.checkInItemByBarcode(configId, picksMap.get(configId), tenantId,
-          sms.getStagingDirectorConnectionParameters(tenantId)
-            .getOkapiToken());
         picksMap.remove(configId);
       }
       return null;
