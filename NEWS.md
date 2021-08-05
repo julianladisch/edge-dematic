@@ -1,5 +1,14 @@
 ## 1.2.0 - Unreleased
 
+## 1.1.2 - Released
+This release disables automatic check-in
+
+[Full Changelog](https://github.com/folio-org/edge-dematic/compare/v1.1.1...v1.1.2)
+
+### Bug Fixes
+* [EDGDEMATIC-39](https://issues.folio.org/browse/EDGDEMATIC-39) - Dematic StagingDirector should not have automatic check-in
+
+
 ## 1.1.1 - Released
 This release includes fix for TCP connection issue
 
